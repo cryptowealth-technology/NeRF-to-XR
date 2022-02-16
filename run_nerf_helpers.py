@@ -8,10 +8,10 @@ import json
 
 # Misc utils
 
-def img2mse(x, y): return tf.reduce_mean(tf.square(x - y))
+def img2mse(x, y): return tf.reduce_mean(input_tensor=tf.square(x - y))
 
 
-def mse2psnr(x): return -10.*tf.log(x)/tf.log(10.)
+def mse2psnr(x): return -10.*tf.math.log(x)/tf.math.log(10.)
 
 
 def to8b(x): return (255*np.clip(x, 0, 1)).astype(np.uint8)
@@ -125,8 +125,8 @@ def get_rays(H, W, focal, c2w):
     i, j = tf.meshgrid(tf.range(W, dtype=tf.float32),
                        tf.range(H, dtype=tf.float32), indexing='xy')
     dirs = tf.stack([(i-W*.5)/focal, -(j-H*.5)/focal, -tf.ones_like(i)], -1)
-    rays_d = tf.reduce_sum(dirs[..., np.newaxis, :] * c2w[:3, :3], -1)
-    rays_o = tf.broadcast_to(c2w[:3, -1], tf.shape(rays_d))
+    rays_d = tf.reduce_sum(input_tensor=dirs[..., np.newaxis, :] * c2w[:3, :3], axis=-1)
+    rays_o = tf.broadcast_to(c2w[:3, -1], tf.shape(input=rays_d))
     return rays_o, rays_d
 
 
@@ -184,7 +184,7 @@ def sample_pdf(bins, weights, N_samples, det=False):
 
     # Get pdf
     weights += 1e-5  # prevent nans
-    pdf = weights / tf.reduce_sum(weights, -1, keepdims=True)
+    pdf = weights / tf.reduce_sum(input_tensor=weights, axis=-1, keepdims=True)
     cdf = tf.cumsum(pdf, -1)
     cdf = tf.concat([tf.zeros_like(cdf[..., :1]), cdf], -1)
 
@@ -204,7 +204,7 @@ def sample_pdf(bins, weights, N_samples, det=False):
     bins_g = tf.gather(bins, inds_g, axis=-1, batch_dims=len(inds_g.shape)-2)
 
     denom = (cdf_g[..., 1]-cdf_g[..., 0])
-    denom = tf.where(denom < 1e-5, tf.ones_like(denom), denom)
+    denom = tf.compat.v1.where(denom < 1e-5, tf.ones_like(denom), denom)
     t = (u-cdf_g[..., 0])/denom
     samples = bins_g[..., 0] + t * (bins_g[..., 1]-bins_g[..., 0])
 
