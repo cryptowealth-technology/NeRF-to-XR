@@ -125,7 +125,7 @@ def get_rays(H, W, focal, c2w):
     i, j = tf.meshgrid(tf.range(W, dtype=tf.float32),
                        tf.range(H, dtype=tf.float32), indexing='xy')
     dirs = tf.stack([(i-W*.5)/focal, -(j-H*.5)/focal, -tf.ones_like(i)], -1)
-    rays_d = tf.reduce_sum(input_tensor=dirs[..., np.newaxis, :] * c2w[:3, :3], axis=-1)
+    rays_d = tf.math.reduce_sum(input_tensor=dirs[..., np.newaxis, :] * c2w[:3, :3], axis=-1)
     rays_o = tf.broadcast_to(c2w[:3, -1], tf.shape(input=rays_d))
     return rays_o, rays_d
 
@@ -184,7 +184,7 @@ def sample_pdf(bins, weights, N_samples, det=False):
 
     # Get pdf
     weights += 1e-5  # prevent nans
-    pdf = weights / tf.reduce_sum(input_tensor=weights, axis=-1, keepdims=True)
+    pdf = weights / tf.math.reduce_sum(input_tensor=weights, axis=-1, keepdims=True)
     cdf = tf.cumsum(pdf, -1)
     cdf = tf.concat([tf.zeros_like(cdf[..., :1]), cdf], -1)
 

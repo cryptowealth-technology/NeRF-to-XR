@@ -143,18 +143,18 @@ def render_rays(ray_batch,
             tf.math.cumprod(1.-alpha + 1e-10, axis=-1, exclusive=True)
 
         # Computed weighted color of each sample along each ray.
-        rgb_map = tf.reduce_sum(
+        rgb_map = tf.math.reduce_sum(
             input_tensor=weights[..., None] * rgb, axis=-2)  # [N_rays, 3]
 
         # Estimated depth map is expected distance.
-        depth_map = tf.reduce_sum(input_tensor=weights * z_vals, axis=-1)
+        depth_map = tf.math.reduce_sum(input_tensor=weights * z_vals, axis=-1)
 
         # Disparity map is inverse depth.
-        disp_map = 1./tf.maximum(1e-10, depth_map /
-                                 tf.reduce_sum(input_tensor=weights, axis=-1))
+        disp_map = 1./tf.math.maximum(1e-10, depth_map /
+                                 tf.math.reduce_sum(input_tensor=weights, axis=None))
 
         # Sum of weights along each ray. This value is in [0, 1] up to numerical error.
-        acc_map = tf.reduce_sum(input_tensor=weights, axis=-1)
+        acc_map = tf.math.reduce_sum(input_tensor=weights, axis=-1)
 
         # To composite onto a white background, use the accumulated alpha map.
         if white_bkgd:
