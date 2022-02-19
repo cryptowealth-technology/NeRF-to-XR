@@ -7,3 +7,5 @@
 *.dae
 data/*
 logs/*
+.vscode
+.DS_Store
