@@ -75,7 +75,7 @@ After 200k iterations (about 15 hours), you should get a video like this at `log
 
 To optimize a low-res Lego NeRF:
 ```
-python run_nerf.py --config config_lego.txt
+python run_nerf.py --config config_lego_test.txt
 ```
 After 200k iterations, you should get a video like this:
 
@@ -91,7 +91,7 @@ to get a pretrained high-res NeRF for the Fern dataset. Now you can use [`render
 
 ### Replicating the paper results
 
-The example config files run at lower resolutions than the quantitative/qualitative results in the paper and video. To replicate the results from the paper, start with the config files in [`paper_configs/`](https://github.com/bmild/nerf/tree/master/paper_configs). Our synthetic Blender data and LLFF scenes are hosted [here](https://drive.google.com/drive/folders/128yBriW1IG_3NJ5Rp7APSTZsJqdJdfc1) and the DeepVoxels data is hosted by Vincent Sitzmann [here](https://drive.google.com/open?id=1lUvJWB6oFtT8EQ_NzBrXnmi25BufxRfl).
+The example config files run at lower resolutions than the quantitative/qualitative results in the paper and video. To replicate the results from the paper, start with the config files in [`nerf_paper_configs/`](https://github.com/bmild/nerf/tree/master/nerf_paper_configs). Our synthetic Blender data and LLFF scenes are hosted [here](https://drive.google.com/drive/folders/128yBriW1IG_3NJ5Rp7APSTZsJqdJdfc1) and the DeepVoxels data is hosted by Vincent Sitzmann [here](https://drive.google.com/open?id=1lUvJWB6oFtT8EQ_NzBrXnmi25BufxRfl).
 
 ### Extracting geometry from a NeRF
 
