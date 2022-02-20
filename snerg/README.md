@@ -52,12 +52,12 @@ pip install --upgrade jax jaxlib==0.1.69+cuda101 -f https://storage.googleapis.c
 ```
 
 You can now test that everything installed correctly by training for a few
-minibatches on the dummy data we provide in this repository:
+minibatches on the dummy data we provide in this repository. Use the following command from the root of the repository:
 
-```
-python -m snerg.train \
-  --data_dir=snerg/data \
-  --train_dir=/tmp/snerg_test \
+```bash
+python -m snerg.train \                                        
+  --data_dir=./data/nerf_synthetic/lego \
+  --train_dir=./tmp/snerg_test \
   --max_steps=5 \
   --factor=2 \
   --batch_size=512
