@@ -4,6 +4,7 @@
 *.npy
 *.npz
 *.dae
+aws/*
 data/*
 logs/*
 tmp/*
