@@ -38,9 +38,6 @@ FLAGS = flags.FLAGS
 
 utils.define_flags()
 config.parse_flags_with_absl()
-# let TF use more memory
-import os
-os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
 
 
 def train_step(model, rng, state, batch, lr):
