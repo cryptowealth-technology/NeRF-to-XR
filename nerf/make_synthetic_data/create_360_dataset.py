@@ -1,7 +1,7 @@
 import sys, os
 import json
 import math
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 import bpy
 import mathutils
@@ -33,7 +33,7 @@ class BlenderDatasetGenerator:
     UPPER_VIEWS = True
     CIRCLE_FIXED_START = (0.3, 0, 0)
 
-    def __init__(self, dataset_params: dict):
+    def __init__(self, dataset_params: Optional[Dict[str, Tuple[int, bool]]]):
         """Map the dataset split -> (num_images, include_depth_normal)."""
         if dataset_params is None:
             dataset_params = {
