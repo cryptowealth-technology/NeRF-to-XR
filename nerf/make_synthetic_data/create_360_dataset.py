@@ -10,7 +10,7 @@ import numpy as np
 
 class BlenderDatasetGenerator:
     """
-    Used to create a dataset of train, test, and val 
+    Used to create a dataset of train, test, and val
     images for a NeRF-like model.
 
     Models this can be used with (that we are sure of at least):
@@ -21,24 +21,25 @@ class BlenderDatasetGenerator:
 
     Credit to Matthew Tancik for providing starter code: https://github.com/bmild/nerf/issues/78
     """
+
     # Define params
     DEBUG = False
     VIEWS = 500
     RESOLUTION = 800
     DEPTH_SCALE = 1.4
     COLOR_DEPTH = 8
-    FORMAT = 'PNG'
+    FORMAT = "PNG"
     RANDOM_VIEWS = True
     UPPER_VIEWS = True
-    CIRCLE_FIXED_START = (.3,0,0)
+    CIRCLE_FIXED_START = (0.3, 0, 0)
 
-    def __init__(self, dataset_params: Optional[Dict]):
+    def __init__(self, dataset_params: dict):
         """Map the dataset split -> (num_images, include_depth_normal)."""
         if dataset_params is None:
             dataset_params = {
                 "train": (125, False),
                 "val": (125, False),
-                "test": (300, True)
+                "test": (250, True),
             }
         self.dataset_params = dataset_params
 
@@ -60,19 +61,19 @@ class BlenderDatasetGenerator:
         # scn.objects.active = b_empty
         return b_empty
 
-    def generate_data_split(self, data_split: str,
-                            num_images: int,
-                            include_depth_normals=False):
+    def generate_data_split(
+        self, data_split: str, num_images: int, include_depth_normals=False
+    ):
         """Generates images that go in a single split of the dataset.
-        
+
         The rotation mode is 'XYZ.'
 
         Parameters:
             data_split(str): one of either "train", "val", or "test"
             num_images(int)
-            include_depth_normals(bool): whether or not to dump albedo and 
+            include_depth_normals(bool): whether or not to dump albedo and
                                          normal images. Default is False.
-                                         Note that settings this to True 
+                                         Note that settings this to True
                                          will triple the number of generated
                                          images.
 
@@ -84,7 +85,7 @@ class BlenderDatasetGenerator:
 
         # Data to store in JSON file
         out_data = {
-            'camera_angle_x': bpy.data.objects['Camera'].data.angle_x,
+            "camera_angle_x": bpy.data.objects["Camera"].data.angle_x,
         }
 
         # Render Optimizations
@@ -96,18 +97,22 @@ class BlenderDatasetGenerator:
         links = tree.links
 
         # Add passes for additionally dumping albedo and normals.
-        bpy.context.scene.view_layers["RenderLayer"].use_pass_normal = include_depth_normals
+        bpy.context.scene.view_layers[
+            "View Layer"
+        ].use_pass_normal = (
+            include_depth_normals  # TODO[debug] - do I use "RenderLayer"?
+        )
         bpy.context.scene.render.image_settings.file_format = str(self.FORMAT)
         bpy.context.scene.render.image_settings.color_depth = str(self.COLOR_DEPTH)
 
         if not self.DEBUG:
             # Create input render layer node.
-            render_layers = tree.nodes.new('CompositorNodeRLayers')
+            render_layers = tree.nodes.new("CompositorNodeRLayers")
 
             depth_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
-            depth_file_output.label = 'Depth Output'
-            if self.FORMAT == 'OPEN_EXR':
-                links.new(render_layers.outputs['Depth'], depth_file_output.inputs[0])
+            depth_file_output.label = "Depth Output"
+            if self.FORMAT == "OPEN_EXR":
+                links.new(render_layers.outputs["Depth"], depth_file_output.inputs[0])
             else:
                 # Remap as other types can not represent the full range of depth.
                 map = tree.nodes.new(type="CompositorNodeMapValue")
@@ -116,20 +121,24 @@ class BlenderDatasetGenerator:
                 map.size = [self.DEPTH_SCALE]
                 map.use_min = True
                 map.min = [0]
-                links.new(render_layers.outputs['Depth'], map.inputs[0])
+                links.new(render_layers.outputs["Depth"], map.inputs[0])
 
                 links.new(map.outputs[0], depth_file_output.inputs[0])
 
             normal_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
-            normal_file_output.label = 'Normal Output'
-            links.new(render_layers.outputs['Normal'], normal_file_output.inputs[0])
+            normal_file_output.label = "Normal Output"
+            links.new(render_layers.outputs["Normal"], normal_file_output.inputs[0])
 
         # Background
         bpy.context.scene.render.dither_intensity = 0.0
         bpy.context.scene.render.film_transparent = True
 
         # Create collection for objects not to render with background
-        objs = [ob for ob in bpy.context.scene.objects if ob.type in ('EMPTY') and 'Empty' in ob.name]
+        objs = [
+            ob
+            for ob in bpy.context.scene.objects
+            if ob.type in ("EMPTY") and "Empty" in ob.name
+        ]
         bpy.ops.object.delete({"selected_objects": objs})
 
         scene = bpy.context.scene
@@ -137,23 +146,23 @@ class BlenderDatasetGenerator:
         scene.render.resolution_y = self.RESOLUTION
         scene.render.resolution_percentage = 100
 
-        cam = scene.objects['Camera']
+        cam = scene.objects["Camera"]
         cam.location = (0, 4.0, 0.5)
-        cam_constraint = cam.constraints.new(type='TRACK_TO')
-        cam_constraint.track_axis = 'TRACK_NEGATIVE_Z'
-        cam_constraint.up_axis = 'UP_Y'
+        cam_constraint = cam.constraints.new(type="TRACK_TO")
+        cam_constraint.track_axis = "TRACK_NEGATIVE_Z"
+        cam_constraint.up_axis = "UP_Y"
         b_empty = self.parent_obj_to_camera(cam)
         cam_constraint.target = b_empty
 
-        scene.render.image_settings.file_format = 'PNG'  # set output format to .png
+        scene.render.image_settings.file_format = "PNG"  # set output format to .png
 
         stepsize = 360.0 / num_images
 
         if not self.DEBUG:
             for output_node in [depth_file_output, normal_file_output]:
-                output_node.base_path = ''
+                output_node.base_path = ""
 
-        out_data['frames'] = []
+        out_data["frames"] = []
 
         if not self.RANDOM_VIEWS:
             b_empty.rotation_euler = self.CIRCLE_FIXED_START
@@ -167,22 +176,26 @@ class BlenderDatasetGenerator:
         for i in range(0, num_images):
             if self.DEBUG:
                 i = np.random.randint(0, num_images)
-                b_empty.rotation_euler[2] += math.radians(stepsize*i)
+                b_empty.rotation_euler[2] += math.radians(stepsize * i)
             if self.RANDOM_VIEWS:
-                scene.render.filepath = self.fp + f'/{data_split}' + '/r_' + str(i)
+                scene.render.filepath = self.fp + f"/{data_split}" + "/r_" + str(i)
                 if self.UPPER_VIEWS:
-                    rot = np.random.uniform(0, 1, size=3) * (1,0,2*np.pi)
-                    rot[0] = np.abs(np.arccos(1 - 2 * rot[0]) - np.pi/2)
+                    rot = np.random.uniform(0, 1, size=3) * (1, 0, 2 * np.pi)
+                    rot[0] = np.abs(np.arccos(1 - 2 * rot[0]) - np.pi / 2)
                     b_empty.rotation_euler = rot
                 else:
-                    b_empty.rotation_euler = np.random.uniform(0, 2*np.pi, size=3)
+                    b_empty.rotation_euler = np.random.uniform(0, 2 * np.pi, size=3)
             else:
-                print("Rotation {}, {}".format((stepsize * i), math.radians(stepsize * i)))
-                scene.render.filepath = self.fp + '/r_' + str(i)
+                print(
+                    "Rotation {}, {}".format((stepsize * i), math.radians(stepsize * i))
+                )
+                scene.render.filepath = self.fp + "/r_" + str(i)
 
             if include_depth_normals:
                 depth_file_output.file_slots[0].path = scene.render.filepath + "_depth_"
-                normal_file_output.file_slots[0].path = scene.render.filepath + "_normal_"
+                normal_file_output.file_slots[0].path = (
+                    scene.render.filepath + "_normal_"
+                )
 
             if self.DEBUG:
                 break
@@ -190,37 +203,37 @@ class BlenderDatasetGenerator:
                 bpy.ops.render.render(write_still=True)  # render still
 
             frame_data = {
-                'file_path': scene.render.filepath,
-                'rotation': math.radians(stepsize),
-                'transform_matrix': self.listify_matrix(cam.matrix_world)
+                "file_path": scene.render.filepath,
+                "rotation": math.radians(stepsize),
+                "transform_matrix": self.listify_matrix(cam.matrix_world),
             }
-            out_data['frames'].append(frame_data)
+            out_data["frames"].append(frame_data)
 
             if self.RANDOM_VIEWS:
                 if self.UPPER_VIEWS:
-                    rot = np.random.uniform(0, 1, size=3) * (1,0,2*np.pi)
-                    rot[0] = np.abs(np.arccos(1 - 2 * rot[0]) - np.pi/2)
+                    rot = np.random.uniform(0, 1, size=3) * (1, 0, 2 * np.pi)
+                    rot[0] = np.abs(np.arccos(1 - 2 * rot[0]) - np.pi / 2)
                     b_empty.rotation_euler = rot
                 else:
-                    b_empty.rotation_euler = np.random.uniform(0, 2*np.pi, size=3)
+                    b_empty.rotation_euler = np.random.uniform(0, 2 * np.pi, size=3)
             else:
                 b_empty.rotation_euler[2] += math.radians(stepsize)
 
         if not self.DEBUG:
-            with open(self.fp + '/' + f'transforms_{data_split}.json', 'w') as out_file:
+            with open(self.fp + "/" + f"transforms_{data_split}.json", "w") as out_file:
                 json.dump(out_data, out_file, indent=4)
 
     def generate_dataset(self, results_path):
         """Generates a synthetic dataset with train/test/val images.
-        
+
         By default, this method will create:
         - 100 training images
         - 100 validation images
-        - 200 test images (not including normal and albedo images, 
+        - 200 test images (not including normal and albedo images,
           which makes for 600 PNGs in total)
         """
         self.fp = bpy.path.abspath(f"//{results_path}")
-        for split, params in self.dataset_params:
+        for split, params in self.dataset_params.items():
             num_images, include_depth_normal = params
             self.generate_data_split(split, num_images, include_depth_normal)
 
@@ -235,4 +248,4 @@ class BlenderDatasetGenerator:
 if __name__ == "__main__":
     # give the absolute path to the folder where you want the dataset saved
     path = "/Users/zainraza/Downloads/dev/miscell/iq3-nerf/data/nerf_synthetic/engine"
-    BlenderDatasetGenerator.generate(path)
+    BlenderDatasetGenerator.generate(results_path=path)
