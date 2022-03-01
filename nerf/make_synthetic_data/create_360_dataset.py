@@ -227,9 +227,9 @@ class BlenderDatasetGenerator:
         """Generates a synthetic dataset with train/test/val images.
 
         By default, this method will create:
-        - 100 training images
-        - 100 validation images
-        - 200 test images (not including normal and albedo images,
+        - 125 training images
+        - 125 validation images
+        - 250 test images (not including normal and albedo images,
           which makes for 600 PNGs in total)
         """
         self.fp = bpy.path.abspath(f"//{results_path}")
