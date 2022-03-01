@@ -13,3 +13,4 @@ dependencies:
     - imageio-ffmpeg
     - configargparse
     - imagemagick
+    - bpy=2.82
