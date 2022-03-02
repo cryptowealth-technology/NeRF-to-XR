@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Dev Test</title>
+</head>
+<body>
+
+    <h1>Does Model Viewer Accept GLB files with a .txt extension?</h1>
+
+    <!-- Import the component -->
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
+    <!-- Use it like any other HTML element -->
+    <model-viewer 
+        alt="Some GLB I extracted from testing the NeRF algorithm"
+        src="/Users/zainraza/Downloads/dev/miscell/iq3-nerf/nerf/logs/lego_example/lego.glb.txt" 
+        ar 
+        ar-modes="webxr scene-viewer quick-look" 
+        seamless-poster shadow-intensity="1" camera-controls>
+    </model-viewer>
+    
+</body>
+</html>
