@@ -1011,7 +1011,7 @@ function loadScene(dirUrl, width, height) {
   // Loads scene parameters (voxel grid size, NDC/no-NDC, view-dependence MLP).
   let modelResourceUrl = dirUrl + '/' + 'model.glb';
   // Instantiate a loader
-  const loader = new GLTFLoader();
+  const loader = new THREE.GLTFLoader();
   // Load a glTF resource
   loader.load(
     // resource URL
@@ -1021,20 +1021,26 @@ function loadScene(dirUrl, width, height) {
 
       // Start rendering ASAP, forcing THREE.js to upload the textures.
       requestAnimationFrame(render);
+      // TODO[debug]: this object is just a hack to make the code work like it used to for Meshes,
+        // otherwis it has no meaning
+      // gSceneParams = {};
+      // gSceneParams['dirUrl'] = dirUrl;
+      // gSceneParams['loadingTextures'] = false;
+      // gSceneParams['diffuse'] = true;
       // add object to the scene + a camera
       gRayMarchScene = new THREE.Scene();
       gRayMarchScene.add( gltf.scene );
-      gRayMarchScene.autoUpdate = false;
+      // gRayMarchScene.autoUpdate = false;
 
       gBlitCamera = new THREE.OrthographicCamera(
           width / -2, width / 2, height / 2, height / -2, -10000, 10000);
-      gBlitCamera.position.z = 100;
+      gBlitCamera.position.z = 10;
 
     },
     // called while loading is progressing
     function ( xhr ) {},
     // called when loading has errors
-    function ( error ) {
+    function ( errors ) {
       console.error(
         'Could not load scene from: ' + dirUrl + ', errors:\n\t' + errors);
     }
@@ -1072,6 +1078,9 @@ function initFromParameters() {
   const vfovy = parseFloat(params.get('vfovy') || 35);
 
   loadScene(dirUrl, width, height);
+  // After loading done, show the model
+  // let loadingContainer = document.getElementById('loading-container');
+  //   loadingContainer.style.display = 'none';
 
   const view = create('div', 'view');
   setDims(view, width, height);
@@ -1113,10 +1122,10 @@ function initFromParameters() {
   gOrbitControls.screenSpacePanning = true;
   gOrbitControls.zoomSpeed = 0.5;
 
-  // store FPS times over first 30 s
+  // store FPS times over first 60 s
   setTimeout(() => {
       console.log(window.fpsValuesOfCanvas)
-    }, 30*1000, 
+    }, 60*1000, 
   )
 }
 
@@ -1162,36 +1171,36 @@ function isRendererUnsupported() {
  */
 function loadOnFirstFrame() {
   // Early out if we've already run this function.
-  if (gSceneParams['loadingTextures']) {
+  if (gSceneParams['hasRunBefore']) {
     return;
   }
 
   // Also early out if the renderer is not supported.
-  if (isRendererUnsupported()) {
-    gSceneParams['loadingTextures'] = true;
-    let loadingContainer = document.getElementById('loading-container');
-    loadingContainer.style.display = 'none';
-    return;
-  }
+  // if (isRendererUnsupported()) {
+  //   gSceneParams['hasRunBefore'] = true;
+  //   let loadingContainer = document.getElementById('loading-container');
+  //   loadingContainer.style.display = 'none';
+  //   return;
+  // }
 
   // Set up the camera controls for the scene type.
   gOrbitControls.target.x = 0.0;
   gOrbitControls.target.y = 0.0;
   gOrbitControls.target.z = 0.0;
 
-  if (gSceneParams['ndc']) {
-    gCamera.position.x = 0.0;
-    gCamera.position.y = 0.0;
-    gCamera.position.z = -0.25;
-    gOrbitControls.panSpeed = 2.0;
-    gOrbitControls.minDistance = 0.05;
-    gOrbitControls.maxDistance = 0.3;
-    gOrbitControls.mouseButtons.LEFT = THREE.MOUSE.PAN;
-  } else {
+  // if (gSceneParams['ndc']) {
+  //   gCamera.position.x = 0.0;
+  //   gCamera.position.y = 0.0;
+  //   gCamera.position.z = -0.25;
+  //   gOrbitControls.panSpeed = 2.0;
+  //   gOrbitControls.minDistance = 0.05;
+  //   gOrbitControls.maxDistance = 0.3;
+  //   gOrbitControls.mouseButtons.LEFT = THREE.MOUSE.PAN;
+  // } else {
     gCamera.position.x = 0.0;
     gCamera.position.y = 1.0;
     gCamera.position.z = -4.0;
-  }
+  // }
 
   gOrbitControls.position = gCamera.position;
   gOrbitControls.position0 = gCamera.position;
@@ -1201,57 +1210,59 @@ function loadOnFirstFrame() {
 
   // Now that the 3D textures have been allocated, we can start slowly filling
   // them with data.
-  const alphaVolumeTexture =
-      gRayMarchScene.children[0].material.uniforms['mapAlpha']['value'];
-  const rgbVolumeTexture =
-      gRayMarchScene.children[0].material.uniforms['mapColor']['value'];
-  let rgbVolumeTexturePromise = loadSplitVolumeTexturePNG(
-      alphaVolumeTexture, rgbVolumeTexture, gSceneParams['dirUrl'] + '/rgba',
-      gNumTextures, gSceneParams['atlas_width'], gSceneParams['atlas_height'],
-      gSceneParams['atlas_depth'], function() {
-        gLoadedRGBATextures++;
-        updateLoadingProgress();
-      });
+  // const alphaVolumeTexture =
+  //     gRayMarchScene.children[0].material.uniforms['mapAlpha']['value'];
+  // const rgbVolumeTexture =
+  //     gRayMarchScene.children[0].material.uniforms['mapColor']['value'];
+  // let rgbVolumeTexturePromise = loadSplitVolumeTexturePNG(
+  //     alphaVolumeTexture, rgbVolumeTexture, gSceneParams['dirUrl'] + '/rgba',
+  //     gNumTextures, gSceneParams['atlas_width'], gSceneParams['atlas_height'],
+  //     gSceneParams['atlas_depth'], function() {
+  //       gLoadedRGBATextures++;
+  //       updateLoadingProgress();
+  //     });
 
-  let featureVolumeTexturePromise = null;
-  if (!gSceneParams['diffuse']) {
-    const featureVolumeTexture =
-      gRayMarchScene.children[0].material.uniforms['mapFeatures']['value'];
-    featureVolumeTexturePromise = loadVolumeTexturePNG(
-      featureVolumeTexture, gSceneParams['dirUrl'] + '/feature', gNumTextures,
-      gSceneParams['atlas_width'], gSceneParams['atlas_height'],
-      gSceneParams['atlas_depth'], function() {
-        gLoadedFeatureTextures++;
-        updateLoadingProgress();
-      });
-  }
+  // let featureVolumeTexturePromise = null;
+  // if (!gSceneParams['diffuse']) {
+  //   const featureVolumeTexture =
+  //     gRayMarchScene.children[0].material.uniforms['mapFeatures']['value'];
+  //   featureVolumeTexturePromise = loadVolumeTexturePNG(
+  //     featureVolumeTexture, gSceneParams['dirUrl'] + '/feature', gNumTextures,
+  //     gSceneParams['atlas_width'], gSceneParams['atlas_height'],
+  //     gSceneParams['atlas_depth'], function() {
+  //       gLoadedFeatureTextures++;
+  //       updateLoadingProgress();
+  //     });
+  // }
 
-  let allTexturesPromise =
-      Promise.all([rgbVolumeTexturePromise, featureVolumeTexturePromise]);
-  allTexturesPromise.catch(errors => {
-    console.error(
-        'Could not load scene from: ' + gSceneParams['dirUrl'] +
-        ', errors:\n\t' + errors[0] + '\n\t' + errors[1] + '\n\t' + errors[2] +
-        '\n\t' + errors[3]);
-  });
+  // let allTexturesPromise =
+  //     Promise.all([rgbVolumeTexturePromise, featureVolumeTexturePromise]);
+  // allTexturesPromise.catch(errors => {
+  //   console.error(
+  //       'Could not load scene from: ' + gSceneParams['dirUrl'] +
+  //       ', errors:\n\t' + errors[0] + '\n\t' + errors[1] + '\n\t' + errors[2] +
+  //       '\n\t' + errors[3]);
+  // });
 
   // After all the textures have been loaded, we build mip maps for alpha
   // to enable accelerated ray marching inside each macroblock.
-  allTexturesPromise.then(texture => {
-    const alphaTextureProperties =
-        gRenderer['properties'].get(alphaVolumeTexture);
-    let gl = gRenderer.getContext();
-    let oldTexture = gl.getParameter(gl.TEXTURE_BINDING_3D);
-    gl.bindTexture(gl.TEXTURE_3D, alphaTextureProperties['__webglTexture']);
-    gl.generateMipmap(gl.TEXTURE_3D);
-    gl.bindTexture(gl.TEXTURE_3D, oldTexture);
+  // allTexturesPromise.then(texture => {
+  //   const alphaTextureProperties =
+  //       gRenderer['properties'].get(alphaVolumeTexture);
+  //   let gl = gRenderer.getContext();
+  //   let oldTexture = gl.getParameter(gl.TEXTURE_BINDING_3D);
+  //   gl.bindTexture(gl.TEXTURE_3D, alphaTextureProperties['__webglTexture']);
+  //   gl.generateMipmap(gl.TEXTURE_3D);
+  //   gl.bindTexture(gl.TEXTURE_3D, oldTexture);
 
-    hideLoading();
-    console.log('Successfully loaded scene from: ' + gSceneParams['dirUrl']);
-  });
+    // hideLoading();
+    // console.log('Successfully loaded scene from: ' + gSceneParams['dirUrl']);
+  // });
+
+  hideLoading();
 
   // Now set the loading textures flag so this function runs only once.
-  gSceneParams['loadingTextures'] = true;
+  gSceneParams['hasRunBefore'] = true;
 }
 
 /**
@@ -1272,7 +1283,7 @@ function updateFPSCounter() {
   gLastFrame = currentFrame;
   document.getElementById('fpsdisplay').innerHTML = smoothFps.toFixed(1);
 
-  // Let's store this FPS (for benchmarking the first 30 s)
+  // Let's store this FPS (for benchmarking the first 60 s)
   window.fpsValuesOfCanvas.push(smoothFps)
 }
 
@@ -1281,28 +1292,29 @@ function updateFPSCounter() {
  * @param {number} t
  */
 function render(t) {
+  gSceneParams = {};
   loadOnFirstFrame();
 
-  gOrbitControls.update();
-  gCamera.updateMatrix();
-  gRenderer.setRenderTarget(null);
-  gRenderer.clear();
+  // gOrbitControls.update();
+  // gCamera.updateMatrix();
+  // gRenderer.setRenderTarget(null);
+  // gRenderer.clear();
 
-  let world_T_camera = gCamera.matrixWorld;
-  let camera_T_clip = new THREE.Matrix4();
-  camera_T_clip.getInverse(gCamera.projectionMatrix);
-  let world_T_clip = new THREE.Matrix4();
-  world_T_clip.multiplyMatrices(world_T_camera, camera_T_clip);
+  // let world_T_camera = gCamera.matrixWorld;
+  // let camera_T_clip = new THREE.Matrix4();
+  // camera_T_clip.getInverse(gCamera.projectionMatrix);
+  // let world_T_clip = new THREE.Matrix4();
+  // world_T_clip.multiplyMatrices(world_T_camera, camera_T_clip);
 
-  gRayMarchScene.children[0].material.uniforms['world_T_clip']['value'] =
-      world_T_clip;
-  gRayMarchScene.children[0].material.uniforms['displayMode']['value'] =
-      gDisplayMode - 0;
-  gRayMarchScene.children[0].material.uniforms['ndc']['value'] =
-      gSceneParams['ndc'] - 0;
-  gRayMarchScene.children[0].material.uniforms['nearPlane']['value'] =
-      gNearPlane;
-  gRenderer.render(gRayMarchScene, gBlitCamera);
+  // gRayMarchScene.children[0].material.uniforms['world_T_clip']['value'] =
+  //     world_T_clip;
+  // gRayMarchScene.children[0].material.uniforms['displayMode']['value'] =
+  //     gDisplayMode - 0;
+  // gRayMarchScene.children[0].material.uniforms['ndc']['value'] =
+  //     gSceneParams['ndc'] - 0;
+  // gRayMarchScene.children[0].material.uniforms['nearPlane']['value'] =
+  //     gNearPlane;
+  gRenderer.render(gRayMarchScene, gCamera);  // b/c no ray marching used, we can just use the perspective camera
 
   updateFPSCounter();
   requestAnimationFrame(render);

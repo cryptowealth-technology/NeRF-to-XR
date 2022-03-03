@@ -4,6 +4,7 @@
 *.npy
 *.npz
 *.dae
+*.glb
 aws/*
 data/*
 logs/*
