@@ -1006,10 +1006,10 @@ function loadVolumeTexturePNG(
 function loadScene(dirUrl, width, height) {
   // Reset the texture loading window.
   gLoadedRGBATextures = gLoadedFeatureTextures = gNumTextures = 0;
-  updateLoadingProgress();
+  // updateLoadingProgress();
 
   // Loads scene parameters (voxel grid size, NDC/no-NDC, view-dependence MLP).
-  let modelResourceUrl = dirUrl + '/' + 'model.glb';
+  let modelResourceUrl = dirUrl + '/' + 'lego.glb';
   // Instantiate a loader
   const loader = new THREE.GLTFLoader();
   // Load a glTF resource
@@ -1018,9 +1018,6 @@ function loadScene(dirUrl, width, height) {
     modelResourceUrl,
     // called when the resource is loaded
     function ( gltf ) {
-
-      // Start rendering ASAP, forcing THREE.js to upload the textures.
-      requestAnimationFrame(render);
       // TODO[debug]: this object is just a hack to make the code work like it used to for Meshes,
         // otherwis it has no meaning
       // gSceneParams = {};
@@ -1035,7 +1032,7 @@ function loadScene(dirUrl, width, height) {
       gBlitCamera = new THREE.OrthographicCamera(
           width / -2, width / 2, height / 2, height / -2, -10000, 10000);
       gBlitCamera.position.z = 10;
-
+      requestAnimationFrame(render);
     },
     // called while loading is progressing
     function ( xhr ) {},
@@ -1065,7 +1062,8 @@ function initFromParameters() {
     error('dir is a required parameter.\n\n' + usageString);
     return;
   }
-
+  
+  // Set size of canvas where model is seen
   let width = 1280;
   let height = 720;
   if (size) {
@@ -1077,10 +1075,6 @@ function initFromParameters() {
   gNearPlane = parseFloat(params.get('near') || 0.33);
   const vfovy = parseFloat(params.get('vfovy') || 35);
 
-  loadScene(dirUrl, width, height);
-  // After loading done, show the model
-  // let loadingContainer = document.getElementById('loading-container');
-  //   loadingContainer.style.display = 'none';
 
   const view = create('div', 'view');
   setDims(view, width, height);
@@ -1092,17 +1086,18 @@ function initFromParameters() {
   const viewSpace = document.querySelector('.viewspace');
   viewSpace.textContent = '';
   viewSpace.appendChild(view);
-
+  
+  // (1) get canvas for the viewer
   let canvas = document.createElement('canvas');
   view.appendChild(canvas);
 
-  // Set up a high performance WebGL context, making sure that anti-aliasing is
+  // (2) Set up a high performance WebGL context, making sure that anti-aliasing is
   // turned off.
   let gl = canvas.getContext('webgl2');
   gRenderer = new THREE.WebGLRenderer({
     canvas: canvas,
     context: gl,
-    powerPreference: 'high-performance',
+    powerPreference: 'low-power',
     alpha: false,
     stencil: false,
     precision: 'mediump',
@@ -1111,6 +1106,7 @@ function initFromParameters() {
     desynchronized: true
   });
 
+  // (3) init camera
   gCamera = new THREE.PerspectiveCamera(
       72, canvas.offsetWidth / canvas.offsetHeight, gNearPlane, 100.0);
   gCamera.aspect = view.offsetWidth / view.offsetHeight;
@@ -1118,15 +1114,13 @@ function initFromParameters() {
   gRenderer.autoClear = false;
   gRenderer.setSize(view.offsetWidth, view.offsetHeight);
 
+  // (4) init orbit controls
   gOrbitControls = new THREE.OrbitControls(gCamera, view);
   gOrbitControls.screenSpacePanning = true;
   gOrbitControls.zoomSpeed = 0.5;
 
-  // store FPS times over first 60 s
-  setTimeout(() => {
-      console.log(window.fpsValuesOfCanvas)
-    }, 60*1000, 
-  )
+  // (5) init scene and models
+  loadScene(dirUrl, width, height);
 }
 
 /**
@@ -1197,15 +1191,14 @@ function loadOnFirstFrame() {
   //   gOrbitControls.maxDistance = 0.3;
   //   gOrbitControls.mouseButtons.LEFT = THREE.MOUSE.PAN;
   // } else {
-    gCamera.position.x = 0.0;
-    gCamera.position.y = 1.0;
-    gCamera.position.z = -4.0;
+    gCamera.position.set(0.0, 0, 5.0);
+    gOrbitControls.update();
   // }
 
-  gOrbitControls.position = gCamera.position;
-  gOrbitControls.position0 = gCamera.position;
+  // gOrbitControls.position = gCamera.position;
+  // gOrbitControls.position0 = gCamera.position;
 
-  gCamera.updateProjectionMatrix();
+  // gCamera.updateProjectionMatrix();
   gOrbitControls.update();
 
   // Now that the 3D textures have been allocated, we can start slowly filling
@@ -1292,10 +1285,9 @@ function updateFPSCounter() {
  * @param {number} t
  */
 function render(t) {
-  gSceneParams = {};
   loadOnFirstFrame();
 
-  // gOrbitControls.update();
+  gOrbitControls.update();
   // gCamera.updateMatrix();
   // gRenderer.setRenderTarget(null);
   // gRenderer.clear();
@@ -1327,8 +1319,15 @@ function start() {
   // init array to store FPS values
   window.fpsValuesOfCanvas = new Array();
   // build the viewer
+  gSceneParams = {};
   initFromParameters();
   addHandlers();
+  // Start rendering 
+  // store FPS times over first 60 s
+  setTimeout(() => {
+      console.log(window.fpsValuesOfCanvas)
+    }, 60*1000, 
+  )
 }
 
 start();
