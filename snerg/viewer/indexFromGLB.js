@@ -1009,12 +1009,12 @@ function loadScene(dirUrl, width, height) {
   // updateLoadingProgress();
 
   // Loads scene parameters (voxel grid size, NDC/no-NDC, view-dependence MLP).
-  let modelResourceUrl = dirUrl + '/' + 'model.glb';
+  let modelResourceUrl = dirUrl + '/' + 'engine.glb';
   // Instantiate a loader, that utilizes Draco compression
   const loader = new THREE.GLTFLoader();
-  const dracoLoader = new THREE.DRACOLoader();
-    dracoLoader.setDecoderPath('https://unpkg.com/browse/three@0.113.1/examples/js/libs/draco/');
-  loader.setDRACOLoader( dracoLoader );
+    const dracoLoader = new THREE.DRACOLoader();
+    dracoLoader.setDecoderPath('https://unpkg.com/three@0.113.1/examples/js/libs/draco/')
+    loader.setDRACOLoader( dracoLoader );
   // Load a glTF resource
   loader.load(
     // resource URL
@@ -1036,6 +1036,7 @@ function loadScene(dirUrl, width, height) {
           width / -2, width / 2, height / 2, height / -2, -10000, 10000);
       gBlitCamera.position.z = 10;
       requestAnimationFrame(render);
+      console.log("Model has been loaded!")
     },
     // called while loading is progressing
     function ( xhr ) {},
