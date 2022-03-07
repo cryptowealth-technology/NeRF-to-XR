@@ -1021,17 +1021,13 @@ function loadScene(dirUrl, width, height) {
     modelResourceUrl,
     // called when the resource is loaded
     function ( gltf ) {
-      // TODO[debug]: this object is just a hack to make the code work like it used to for Meshes,
-        // otherwis it has no meaning
-      // gSceneParams = {};
-      // gSceneParams['dirUrl'] = dirUrl;
-      // gSceneParams['loadingTextures'] = false;
-      // gSceneParams['diffuse'] = true;
-      // add object to the scene + a camera
       gRayMarchScene = new THREE.Scene();
       gRayMarchScene.add( gltf.scene );
       // gRayMarchScene.autoUpdate = false;
-
+      // (6) add lights and camera
+      const light = new THREE.DirectionalLight(0xFFFFFF, 1);  // white light, intensity = 1
+        light.position.set(-1, 2, 4);
+        gRayMarchScene.add(light);
       gBlitCamera = new THREE.OrthographicCamera(
           width / -2, width / 2, height / 2, height / -2, -10000, 10000);
       gBlitCamera.position.z = 10;
