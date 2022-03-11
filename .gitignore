@@ -4,6 +4,8 @@
 *.npy
 *.npz
 *.dae
+*.glb
+*.gltf
 aws/*
 data/*
 logs/*
@@ -11,6 +13,8 @@ tmp/*
 .DS_Store
 .vscode
 */logs/*
+*checkpoint_*
+events.out.tfevents*
 
 # Byte-compiled / optimized / DLL files
 **/__pycache__/*

@@ -9,3 +9,8 @@ scipy>=1.4.1
 tensorboard>=2.4.0
 tensorflow>=2.3.1
 tensorflow-hub>=0.11.0
+
+# When running on AWS EC2 GPU instance, with a DLAMI that has CUDA 11:
+# flax==0.4.0
+# jax==0.3.1
+# jaxlib==0.1.74+cuda11.cudnn82
