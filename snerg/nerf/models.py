@@ -105,10 +105,7 @@ class NerfModel(nn.Module):
         # Point attribute predictions
         if self.use_viewdirs:
             viewdirs_enc = model_utils.posenc(
-                rays.viewdirs,
-                0,
-                self.deg_view,
-                self.legacy_posenc_order,
+                rays.viewdirs, 0, self.deg_view, self.legacy_posenc_order,
             )
             raw_features_and_rgb, raw_sigma = coarse_mlp(coarse_samples_enc)
         else:
@@ -117,10 +114,7 @@ class NerfModel(nn.Module):
         # Add noises to regularize the density predictions if needed
         key, rng_0 = random.split(rng_0)
         raw_sigma = model_utils.add_gaussian_noise(
-            key,
-            raw_sigma,
-            self.noise_std,
-            randomized,
+            key, raw_sigma, self.noise_std, randomized,
         )
         sigma = self.sigma_activation(raw_sigma)
 
@@ -153,11 +147,7 @@ class NerfModel(nn.Module):
                 raw_features_and_rgb[Ellipsis, 0 : self.num_rgb_channels]
             )
             comp_rgb, disp, acc, weights = model_utils.volumetric_rendering(
-                diffuse_rgb,
-                sigma,
-                z_vals,
-                rays.directions,
-                white_bkgd=self.white_bkgd,
+                diffuse_rgb, sigma, z_vals, rays.directions, white_bkgd=self.white_bkgd,
             )
 
             viewdirs_enc_features = jnp.concatenate(
@@ -175,11 +165,7 @@ class NerfModel(nn.Module):
             rgb = self.rgb_activation(raw_rgb)
             # Volumetric rendering.
             comp_rgb, disp, acc, weights = model_utils.volumetric_rendering(
-                rgb,
-                sigma,
-                z_vals,
-                rays.directions,
-                white_bkgd=self.white_bkgd,
+                rgb, sigma, z_vals, rays.directions, white_bkgd=self.white_bkgd,
             )
             features = jnp.zeros_like(comp_rgb)
             rgb_residual = jnp.zeros_like(comp_rgb)
@@ -225,10 +211,7 @@ class NerfModel(nn.Module):
 
             key, rng_1 = random.split(rng_1)
             raw_sigma = model_utils.add_gaussian_noise(
-                key,
-                raw_sigma,
-                self.noise_std,
-                randomized,
+                key, raw_sigma, self.noise_std, randomized,
             )
             sigma = self.sigma_activation(raw_sigma)
 
@@ -255,11 +238,7 @@ class NerfModel(nn.Module):
                 ]
 
                 comp_features, _, _, _ = model_utils.volumetric_rendering(
-                    features,
-                    sigma,
-                    z_vals,
-                    rays.directions,
-                    white_bkgd=False,
+                    features, sigma, z_vals, rays.directions, white_bkgd=False,
                 )
                 features = comp_features[Ellipsis, 0 : self.num_rgb_channels]
 
@@ -287,11 +266,7 @@ class NerfModel(nn.Module):
                 rgb = self.rgb_activation(raw_rgb)
                 # Volumetric rendering.
                 comp_rgb, disp, acc, weights = model_utils.volumetric_rendering(
-                    rgb,
-                    sigma,
-                    z_vals,
-                    rays.directions,
-                    white_bkgd=self.white_bkgd,
+                    rgb, sigma, z_vals, rays.directions, white_bkgd=self.white_bkgd,
                 )
                 features = jnp.zeros_like(comp_rgb)
                 rgb_residual = jnp.zeros_like(comp_rgb)

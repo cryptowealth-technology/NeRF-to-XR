@@ -334,8 +334,9 @@ def render(
     # Create ray batch
     rays_o = tf.cast(tf.reshape(rays_o, [-1, 3]), dtype=tf.float32)
     rays_d = tf.cast(tf.reshape(rays_d, [-1, 3]), dtype=tf.float32)
-    near, far = near * tf.ones_like(rays_d[..., :1]), far * tf.ones_like(
-        rays_d[..., :1]
+    near, far = (
+        near * tf.ones_like(rays_d[..., :1]),
+        far * tf.ones_like(rays_d[..., :1]),
     )
 
     # (ray origin, ray direction, min dist, max dist) for each ray
