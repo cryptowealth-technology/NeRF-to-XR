@@ -329,6 +329,7 @@ def atlas_raymarch_rays_tf(
 
 @tf.function
 def map_fn_wrapper(origins_t, directions_t, extra_info):
+    # unpack the parameters needed for raymarching
     (
         atlas_t,
         atlas_block_indices_t,
@@ -422,6 +423,7 @@ def atlas_raymarch_rays_parallel_tf(
     block_origins_t = tf.stack(block_origins_list)
     block_directions_t = tf.stack(block_directions_list)
 
+    # pack the parameters needed for raymarching
     extra_info = (
         atlas_t,
         atlas_block_indices_t,
