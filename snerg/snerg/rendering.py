@@ -327,6 +327,34 @@ def atlas_raymarch_rays_tf(
     return total_rgb, 1.0 - total_visibility
 
 
+@tf.function
+def map_fn_wrapper(origins_t, directions_t, extra_info):
+    # unpack the parameters needed for raymarching
+    (
+        atlas_t,
+        atlas_block_indices_t,
+        atlas_params,
+        scene_params,
+        grid_params,
+    ) = extra_info
+
+    def partial_raymarch_fn(rays_t):
+        origins_t, directions_t = rays_t
+        return atlas_raymarch_rays_tf(
+            origins_t,
+            directions_t,
+            atlas_t,
+            atlas_block_indices_t,
+            atlas_params,
+            scene_params,
+            grid_params,
+        )
+
+    return tf.map_fn(
+        partial_raymarch_fn, (origins_t, directions_t), parallel_iterations=32
+    )
+
+
 def atlas_raymarch_rays_parallel_tf(
     h,
     w,
@@ -395,25 +423,17 @@ def atlas_raymarch_rays_parallel_tf(
     block_origins_t = tf.stack(block_origins_list)
     block_directions_t = tf.stack(block_directions_list)
 
-    def partial_raymarch_fn(rays_t):
-        origins_t, directions_t = rays_t
-        return atlas_raymarch_rays_tf(
-            origins_t,
-            directions_t,
-            atlas_t,
-            atlas_block_indices_t,
-            atlas_params,
-            scene_params,
-            grid_params,
-        )
-
-    @tf.function
-    def map_fn_wrapper(origins_t, directions_t):
-        return tf.map_fn(
-            partial_raymarch_fn, (origins_t, directions_t), parallel_iterations=32
-        )
-
-    block_rgb_t, block_alpha_t = map_fn_wrapper(block_origins_t, block_directions_t)
+    # pack the parameters needed for raymarching
+    extra_info = (
+        atlas_t,
+        atlas_block_indices_t,
+        atlas_params,
+        scene_params,
+        grid_params,
+    )
+    block_rgb_t, block_alpha_t = map_fn_wrapper(
+        block_origins_t, block_directions_t, extra_info
+    )
     block_rgb_list = list(block_rgb_t)
     block_alpha_list = list(block_alpha_t)
 

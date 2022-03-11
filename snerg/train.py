@@ -105,8 +105,15 @@ def train_step(model, rng, state, batch, lr):
             sparsity_c=sparsity_c,
         )
         return (
-            loss + loss_c + FLAGS.weight_decay_mult * weight_l2 + sparsity + sparsity_c
-        ), stats
+            (
+                loss
+                + loss_c
+                + FLAGS.weight_decay_mult * weight_l2
+                + sparsity
+                + sparsity_c
+            ),
+            stats,
+        )
 
     (_, stats), grad = jax.value_and_grad(loss_fn, has_aux=True)(state.optimizer.target)
     grad = jax.lax.pmean(grad, axis_name="batch")

@@ -6,13 +6,7 @@ import json
 
 
 trans_t = lambda t: tf.convert_to_tensor(
-    [
-        [1, 0, 0, 0],
-        [0, 1, 0, 0],
-        [0, 0, 1, t],
-        [0, 0, 0, 1],
-    ],
-    dtype=tf.float32,
+    [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, t], [0, 0, 0, 1],], dtype=tf.float32,
 )
 
 rot_phi = lambda phi: tf.convert_to_tensor(
