@@ -1009,7 +1009,7 @@ function loadScene(dirUrl, width, height) {
   // updateLoadingProgress();
 
   // Loads scene parameters (voxel grid size, NDC/no-NDC, view-dependence MLP).
-  let modelResourceUrl = dirUrl + '/' + 'engine.glb';
+  let modelResourceUrl = dirUrl + '/' + 'engine_default.glb';
   // Instantiate a loader, that utilizes Draco compression
   const loader = new THREE.GLTFLoader();
     const dracoLoader = new THREE.DRACOLoader();

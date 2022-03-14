@@ -1207,12 +1207,6 @@ function initFromParameters() {
   gOrbitControls = new THREE.OrbitControls(gCamera, view);
   gOrbitControls.screenSpacePanning = true;
   gOrbitControls.zoomSpeed = 0.5;
-
-  // store FPS times over first 30 s
-  setTimeout(() => {
-      console.log(window.fpsValuesOfCanvas)
-    }, 30*1000, 
-  )
 }
 
 /**
@@ -1343,6 +1337,12 @@ function loadOnFirstFrame() {
 
     hideLoading();
     console.log('Successfully loaded scene from: ' + gSceneParams['dirUrl']);
+    // store FPS times over first 60 s - now that the mesh has loaded
+    setTimeout(() => {
+        console.log(window.fpsValuesOfCanvas);
+        console.log(gRenderer.info);
+      }, 60*1000, 
+    )
   });
 
   // Now set the loading textures flag so this function runs only once.
