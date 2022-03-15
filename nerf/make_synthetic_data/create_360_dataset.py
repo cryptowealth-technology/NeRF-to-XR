@@ -1,10 +1,10 @@
-import sys, os
 import json
-import math
+import sys
 from typing import Dict, Optional, Tuple
+import os
 
 import bpy
-import mathutils
+import mathutils, math
 import numpy as np
 
 
@@ -147,7 +147,8 @@ class BlenderDatasetGenerator:
         scene.render.resolution_percentage = 100
 
         cam = scene.objects["Camera"]
-        cam.location = (0, 4.0, 0.5)
+        cam.location = (0, 4.0, 0.5)  # default
+        # cam.location = (0.7, 1.3, 1)
         cam_constraint = cam.constraints.new(type="TRACK_TO")
         cam_constraint.track_axis = "TRACK_NEGATIVE_Z"
         cam_constraint.up_axis = "UP_Y"
@@ -244,8 +245,12 @@ class BlenderDatasetGenerator:
         data_synthesizer.generate_dataset(results_path)
 
 
-# This is what we would actually call in Blender (or as an external script)
 if __name__ == "__main__":
-    # give the absolute path to the folder where you want the dataset saved
-    path = "/Users/zainraza/Downloads/dev/miscell/iq3-nerf/data/nerf_synthetic/engine"
+    # path to the folder where you want the dataset saved
+    path = "/Users/zainraza/Downloads/engine_closeup"
+    dataset_params = {
+        "train": (100, False),
+        "val": (100, False),
+        "test": (200, True),
+    }
     BlenderDatasetGenerator.generate(results_path=path)

@@ -123,9 +123,7 @@ snerg_dtype: float16
 
 ## Viewer
 
-You can run this viewer code by uploading it to your own web-server and pointing
-it to a SNeRG output directory, e.g.
-http://my.web.server.com/snerg/index.html?dir=scene_dir_on_server/baked/png
+If you wish to run the viewer code locally, please checkout the original repo by Google Research: [GitHub link](https://github.com/google-research/google-research/tree/master/snerg#viewer).
 
 ## Quality evaluation
 
