@@ -125,7 +125,7 @@ snerg_dtype: float16
 
 You can run this viewer code by uploading it to your own web-server and pointing
 it to a SNeRG output directory, e.g.
-http://my.web.server.com/snerg/index.html?dir=scene_dir_on_server/baked/png
+http://my.web.server.com/snerg/snerg.html?dir=scene_dir_on_server/baked/png
 
 ## Quality evaluation
 
