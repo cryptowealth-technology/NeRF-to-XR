@@ -71,7 +71,14 @@ def load_dv_data(scene="cube", basedir="/data/deepvoxels", testskip=8):
             ],
             0,
         )
-        transf = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1.0],])
+        transf = np.array(
+            [
+                [1, 0, 0, 0],
+                [0, -1, 0, 0],
+                [0, 0, -1, 0],
+                [0, 0, 0, 1.0],
+            ]
+        )
         poses = poses @ transf
         poses = poses[:, :3, :4].astype(np.float32)
         return poses

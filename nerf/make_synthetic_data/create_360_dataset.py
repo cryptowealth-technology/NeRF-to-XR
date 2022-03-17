@@ -79,6 +79,9 @@ class BlenderDatasetGenerator:
 
         Returns: None
         """
+        # alias to make typing easier
+        scene = bpy.context.scene
+
         # Make dir to save synthetic images
         if not os.path.exists(self.fp):
             os.makedirs(self.fp)
@@ -89,21 +92,17 @@ class BlenderDatasetGenerator:
         }
 
         # Render Optimizations
-        bpy.context.scene.render.use_persistent_data = True
+        scene.render.use_persistent_data = True
 
         # Set up rendering of depth map.
-        bpy.context.scene.use_nodes = True
-        tree = bpy.context.scene.node_tree
+        scene.use_nodes = True
+        tree = scene.node_tree
         links = tree.links
 
         # Add passes for additionally dumping albedo and normals.
-        bpy.context.scene.view_layers[
-            "View Layer"
-        ].use_pass_normal = (
-            include_depth_normals  # TODO[debug] - do I use "RenderLayer"?
-        )
-        bpy.context.scene.render.image_settings.file_format = str(self.FORMAT)
-        bpy.context.scene.render.image_settings.color_depth = str(self.COLOR_DEPTH)
+        scene.view_layers["View Layer"].use_pass_normal = include_depth_normals
+        scene.render.image_settings.file_format = str(self.FORMAT)
+        scene.render.image_settings.color_depth = str(self.COLOR_DEPTH)
 
         if not self.DEBUG:
             # Create input render layer node.
@@ -111,18 +110,18 @@ class BlenderDatasetGenerator:
 
             depth_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
             depth_file_output.label = "Depth Output"
-            if self.FORMAT == "OPEN_EXR":
+            if self.FORMAT == "OPEN_EXR":  # popular format for HDR images
                 links.new(render_layers.outputs["Depth"], depth_file_output.inputs[0])
             else:
                 # Remap as other types can not represent the full range of depth.
                 map = tree.nodes.new(type="CompositorNodeMapValue")
-                # These params are arbitrary - double check in the Compositing tab of Blender GUI 
+                # These params are arbitrary - double check in the Compositing tab of Blender GUI
                 map.offset = [-0.7]
                 map.size = [self.DEPTH_SCALE]
                 map.use_min, map.min = True, [0]
                 # connect the depth values to our map node
                 links.new(render_layers.outputs["Depth"], map.inputs[0])
-                # before rendering the depth map, normalize its pixels 
+                # before rendering the depth map, normalize its pixels
                 normalizer = tree.nodes.new(type="CompositorNodeNormalize")
                 links.new(map.outputs[0], normalizer.inputs[0])
                 # render the final depth map!
@@ -133,18 +132,15 @@ class BlenderDatasetGenerator:
             links.new(render_layers.outputs["Normal"], normal_file_output.inputs[0])
 
         # Background
-        bpy.context.scene.render.dither_intensity = 0.0
-        bpy.context.scene.render.film_transparent = True
+        scene.render.dither_intensity = 0.0
+        scene.render.film_transparent = True
 
         # Create collection for objects not to render with background
         objs = [
-            ob
-            for ob in bpy.context.scene.objects
-            if ob.type in ("EMPTY") and "Empty" in ob.name
+            ob for ob in scene.objects if ob.type in ("EMPTY") and "Empty" in ob.name
         ]
         bpy.ops.object.delete({"selected_objects": objs})
 
-        scene = bpy.context.scene
         scene.render.resolution_x = self.RESOLUTION
         scene.render.resolution_y = self.RESOLUTION
         scene.render.resolution_percentage = 100
