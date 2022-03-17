@@ -116,14 +116,17 @@ class BlenderDatasetGenerator:
             else:
                 # Remap as other types can not represent the full range of depth.
                 map = tree.nodes.new(type="CompositorNodeMapValue")
-                # Size is chosen kind of arbitrarily, try out until you're satisfied with resulting depth map.
+                # These params are arbitrary - double check in the Compositing tab of Blender GUI 
                 map.offset = [-0.7]
                 map.size = [self.DEPTH_SCALE]
-                map.use_min = True
-                map.min = [0]
+                map.use_min, map.min = True, [0]
+                # connect the depth values to our map node
                 links.new(render_layers.outputs["Depth"], map.inputs[0])
-
-                links.new(map.outputs[0], depth_file_output.inputs[0])
+                # before rendering the depth map, normalize its pixels 
+                normalizer = tree.nodes.new(type="CompositorNodeNormalize")
+                links.new(map.outputs[0], normalizer.inputs[0])
+                # render the final depth map!
+                links.new(normalizer.outputs[0], depth_file_output.inputs[0])
 
             normal_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
             normal_file_output.label = "Normal Output"
@@ -147,8 +150,7 @@ class BlenderDatasetGenerator:
         scene.render.resolution_percentage = 100
 
         cam = scene.objects["Camera"]
-        cam.location = (0, 4.0, 0.5)  # default
-        # cam.location = (0.7, 1.3, 1)
+        cam.location = (2.8, 3.35, 0.7)
         cam_constraint = cam.constraints.new(type="TRACK_TO")
         cam_constraint.track_axis = "TRACK_NEGATIVE_Z"
         cam_constraint.up_axis = "UP_Y"
@@ -247,10 +249,10 @@ class BlenderDatasetGenerator:
 
 if __name__ == "__main__":
     # path to the folder where you want the dataset saved
-    path = "/Users/zainraza/Downloads/engine_closeup"
+    path = "/Users/zainraza/Downloads/engine_closeup_with_normalize"
     dataset_params = {
         "train": (100, False),
         "val": (100, False),
         "test": (200, True),
     }
-    BlenderDatasetGenerator.generate(results_path=path)
+    BlenderDatasetGenerator.generate(dataset_params, results_path=path)
