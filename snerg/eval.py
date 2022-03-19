@@ -69,7 +69,10 @@ def main(unused_argv):
 
     # pmap over only the data input.
     render_pfn = jax.pmap(
-        render_fn, in_axes=(None, None, None, 0), donate_argnums=3, axis_name="batch",
+        render_fn,
+        in_axes=(None, None, None, 0),
+        donate_argnums=3,
+        axis_name="batch",
     )
 
     # Compiling to the CPU because it's faster and more accurate.

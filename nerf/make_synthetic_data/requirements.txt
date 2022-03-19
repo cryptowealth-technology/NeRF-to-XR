@@ -1,0 +1,5 @@
+# fake-bpy-module uses typing module and type hints which are available from Python 3.7. 
+# Check your Python version is >= 3.7.
+
+
+fake-bpy-module-2.82  # if your Blender version is not 2.82, use fake-bpy-module-<version>

@@ -330,7 +330,11 @@ def refine_view_dependence_mlp(
         functools.partial(train_step, viewdir_mlp_model),
         axis_name="batch",
         in_axes=(0, 0, 0, 0, None),
-        donate_argnums=(1, 2, 3,),
+        donate_argnums=(
+            1,
+            2,
+            3,
+        ),
     )
     state = flax.jax_utils.replicate(state)
 
