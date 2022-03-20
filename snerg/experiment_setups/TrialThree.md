@@ -6,9 +6,9 @@
     a. `voxel_resolution: 800`
     b. `snerg_dtype: float16`
     c. `batch_size: 256`
-3. Num_iterations: 47500
+3. Num_iterations: 50,000
 4. Did the model converge? 
-    a. TODO
+    a. yes for the most part - over the course of the epochs the `avg_loss` decreased from about 0.045 to 0.014.
 
 # The Dataset
 - 100 training, 100 val, 200 testing
@@ -17,17 +17,17 @@
 - **I left only 1 light in the Blender scene**
 
 # Results
-1. Qualitative: TODO 
-2. PSNR: 10.516991861087531
+1. Qualitative: the overall shape was non-existent, some color showed
+2. PSNR: 10.53106867654687
 
 # Performance
 
 | Metric               |  `Mesh` |
 |----------------------|--------|
-| **Avg. FPS (over 60 s, rounded to the nearest 0.01)**|   TODO   |
-| **# of Triangles in Mesh** | TODO |
-| **# of Draw Calls** |  TODO |
-| Size of Assets (MB)     | TODO       |
-| GPU Memory Footprint (rounded to nearest 10 MB)         |   TODO    |
+| **Avg. FPS (over 60 s, rounded to the nearest 0.01)**|   8.68   |
+| **# of Triangles in Mesh** | 2 |
+| **# of Draw Calls** |  1 |
+| Size of Assets (MB)     |  82.5    |
+| GPU Memory Footprint (rounded to nearest 10 MB)         |   1.4 GB    |
 
-![FPS of the `Mesh` in the Browser](TODO)
+![No FPS graph, because visual results were too poor to expect users realistically to view it](TODO)
