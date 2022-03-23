@@ -15,10 +15,13 @@
 - **depth maps were much more defined** (normalized to be 0-1)
 - **camera was closer** to the engine
 - I **added 4 lights around** the model in the scene, placed on both sides of the model along the X and Y axes
+- Data dir name: `engine_closeup_with_normalize`
 
 # Results
 1. Qualitative: the overall shape was non-existent, some color showed
 2. **PSNR**: 10.516991861087531
+3. Checkpoint dir: `snerg_engine_depth.zip` - AWS
+4. Baked images: `baked_engine2_depth.zip`
 
 # Performance
 

@@ -14,10 +14,13 @@
 - 100 training, 100 val, 200 testing
 - depth maps were basically invisible
 - **camera was farther away** from the engine
+- Data dir name: `engine_small_ds`
 
 # Results
 1. Qualitative: the overall shape was there, but no color
 2. **PSNR**: 28.722675616322434
+3. Checkpoint dir: `snerg_on_engine` - AWS
+4. Baked images: `baked_engine1`
 
 # Performance
 

@@ -8,18 +8,21 @@
     c. `batch_size: 256`
 3. Num_iterations: 50,000
 4. Did the model converge? 
-    a. yes - its final `avg_loss` was 0.0047, lowest of any model I can remember seeinng
+    a. yes - its final `avg_loss` was 0.0047, lowest of any model I can remember seeing
 
 # The Dataset
 - 100 training, 100 val, 200 testing
 - depth maps were much more defined (normalized to be 0-1)
 - camera was **farther** to the engine
 - I left only 1 light in the Blender scene
+- Data dir name: `engine_faraway_with_normalize`
 
 # Results
 1. Qualitative: still lacks shape, like Trial 2 and 3
 2. PSNR: 14.303311971709785
     a. slight increase over 2 and 3, but below Trial 1
+3. Checkpoint dir: `snerg_on_engine_4.zip` - AWS
+4. Baked images: `baked_4`
 
 # Performance
 

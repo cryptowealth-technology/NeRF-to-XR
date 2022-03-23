@@ -14,10 +14,13 @@
 - 100 training, 100 val, 200 testing
 - depth maps were basically invisible
 - **camera was farther away** from the engine
+- Data dir name: `engine_5_ds`
 
 # Results
 1. Qualitative: TODO
 2. **PSNR**: TODO
+3. Checkpoint dir: `snerg_on_engine_5` - AWS EC 2
+4. Baked images: TODO
 
 # Performance
 

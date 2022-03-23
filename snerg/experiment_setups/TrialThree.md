@@ -15,10 +15,13 @@
 - depth maps were much more defined (normalized to be 0-1)
 - camera was closer to the engine
 - **I left only 1 light in the Blender scene**
+- Data dir name: `engine_closeup_normalized_1light`
 
 # Results
 1. Qualitative: the overall shape was non-existent, some color showed
 2. PSNR: 10.53106867654687
+3. Checkpoint dir: `snerg_on_engine_1light.zip` - AWS
+4. Baked images: `baked_1light`
 
 # Performance
 
