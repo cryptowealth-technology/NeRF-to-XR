@@ -23,12 +23,12 @@ class BlenderDatasetGenerator:
     """
 
     # Define params
-    DEBUG = False
-    VIEWS = 500
-    RESOLUTION = 800
+    DEBUG = False  # whether or not to take pics
+    VIEWS = 500  # number of pics to take
+    RESOLUTION = 800  # size of the images (squared)
     DEPTH_SCALE = 1.4
     COLOR_DEPTH = 8
-    FORMAT = "PNG"
+    FORMAT = "PNG" 
     RANDOM_VIEWS = True
     UPPER_VIEWS = True
     CIRCLE_FIXED_START = (0.3, 0, 0)
@@ -146,14 +146,14 @@ class BlenderDatasetGenerator:
         scene.render.resolution_percentage = 100
 
         cam = scene.objects["Camera"]
-        cam.location = (2.8, 3.35, 0.7)
+        cam.location = (0, 4.0, 0.5)
         cam_constraint = cam.constraints.new(type="TRACK_TO")
         cam_constraint.track_axis = "TRACK_NEGATIVE_Z"
         cam_constraint.up_axis = "UP_Y"
         b_empty = self.parent_obj_to_camera(cam)
         cam_constraint.target = b_empty
 
-        scene.render.image_settings.file_format = "PNG"  # set output format to .png
+        scene.render.image_settings.file_format = self.FORMAT
 
         stepsize = 360.0 / num_images
 
@@ -172,6 +172,9 @@ class BlenderDatasetGenerator:
             bpy.data.objects["Cube"].hide_viewport = True
 
         # Take the Pictures!
+        if self.DEBUG:
+            np.random.seed(42)  # makes the rendered images stable across runs
+
         for i in range(0, num_images):
             if self.DEBUG:
                 i = np.random.randint(0, num_images)
@@ -245,7 +248,7 @@ class BlenderDatasetGenerator:
 
 if __name__ == "__main__":
     # path to the folder where you want the dataset saved
-    path = "/Users/zainraza/Downloads/engine_closeup_with_normalize"
+    path = "/Users/zainraza/Downloads/engine_5_ds"
     dataset_params = {
         "train": (100, False),
         "val": (100, False),
