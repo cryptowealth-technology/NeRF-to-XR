@@ -18,12 +18,22 @@
 - Data dir name: `engine_faraway_with_normalize`
 
 # Results
-1. Qualitative: still lacks shape, like Trial 2 and 3
+1. Qualitative: still lacks shape, like Trial 2 and 3 it has color though
 2. PSNR: 14.303311971709785
     a. slight increase over 2 and 3, but below Trial 1
 3. Checkpoint dir: `snerg_on_engine_4.zip` - AWS
 4. Baked images: `baked_4`
 
+## Visual Look
+
+*Figure 1*: This is roughly the front of the cube, looking down.
+![Front view, looking "down" at the model](trial4_front.png)
+*Figure 2*: This is roughly the side view of the cube.
+![Side view](trial4_side.png)
+*Figure 3*: This is roughly the bottom view of the cube, looking up.
+![Bottom view](trial4_bottom.png)
+
+Summary: from the pictures above, we can see the rendered models has the faint outlines of a cube-like shape. The green color comes out in some areas, but not all.
 # Performance
 
 | Metric               |  `Mesh` |

@@ -23,6 +23,16 @@
 3. Checkpoint dir: `snerg_engine_depth.zip` - AWS
 4. Baked images: `baked_engine2_depth.zip`
 
+## Visual Look
+
+*Figure 1*: This is roughly the front of the cube, looking down.
+![Front view, looking "down" at the model](trial2_front.png)
+*Figure 2*: This is roughly the side view of the cube.
+![Side view](trial2_side.png)
+*Figure 3*: This is roughly the bottom view of the cube, looking up.
+![Bottom view](trial2_bottom.png)
+
+Summary: from the pictures above, we can see the rendered models has the faint outlines of a cube-like shape. The green color and blue comes out in some areas, but not all. To me it is not clear whether 4 lights in this scene is having much of an effect - as compared to Trials 3 and 4, this rendered models still has large patches of whiteness. On the other hand, it does seem have blackened a lot less, than in the experiments where there's only 1 light.
 # Performance
 
 | Metric               |  `Mesh` |

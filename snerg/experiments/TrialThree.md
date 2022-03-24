@@ -23,6 +23,17 @@
 3. Checkpoint dir: `snerg_on_engine_1light.zip` - AWS
 4. Baked images: `baked_1light`
 
+## Visual Look
+
+*Figure 1*: This is roughly the front of the cube, looking down.
+![Front view, looking "down" at the model](trial3_front.png)
+*Figure 2*: This is roughly the side view of the cube.
+![Side view](trial3_side.png)
+*Figure 3*: This is roughly the bottom view of the cube, looking up.
+![Bottom view](trial3_bottom.png)
+
+Summary: from the pictures above, we can see the rendered models has the faint outlines of a cube-like shape. The green color and blue comes out in some areas, but not all.
+
 # Performance
 
 | Metric               |  `Mesh` |

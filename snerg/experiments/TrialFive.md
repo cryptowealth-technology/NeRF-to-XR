@@ -21,12 +21,14 @@
 2. **PSNR**: 29.517992679737848
 3. Checkpoint dir: `snerg_on_engine_5` - AWS EC 2
 4. Baked images: `baked_5`
+## Visual Look
+
+*Figure 1*: it is hard to tell, but from this viewing angle the rendered engine appears to be slightly tinted green. This suggests that adding the depth maps did slighly help in adding color to the model (as compared with Trial 1, in which there were no depth maps and the engine was black all over).
 
 ![Trial 1, which shows the rendered engine with a little color](trial5_screenshot_tinted.png)
-*Figure 1*: it is hard to tell, but from this viewing angle the rendered engine appears to be slightly tinted green. This suggests that adding the depth maps did indeed help in adding color to the model (as compared with Trial 1, in which there were no depth maps and the engine was black all over).
 
-![Trial 1, which shows the rendered engine with no color](trial5_screenshot_black.png)
 *Figure 2*: as we can see, most of the rendered engine is solid black.
+![Trial 1, which shows the rendered engine with no color](trial5_screenshot_black.png)
 
 # Performance
 

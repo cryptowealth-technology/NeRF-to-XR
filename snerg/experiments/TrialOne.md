@@ -22,6 +22,17 @@
 3. Checkpoint dir: `snerg_on_engine` - AWS
 4. Baked images: `baked_engine1`
 
+## Visual Look
+
+*Figure 1*: This is roughly the top, looking down at the model:
+![Front view, looking "down" at the model](trial1_top.png)
+*Figure 2*: This is roughly the side:
+![Side view 1](trial1_side1.png)
+*Figure 3*: This is another side view:
+![Side view 2](trial1_side2.png)
+
+Summary: As we can see from the images above, the model has a shape that's fairly close to that of the input. However there are some serious defects such as the lack of color, and the fuzzy edges.
+
 # Performance
 
 | Metric               |  `Mesh` |
