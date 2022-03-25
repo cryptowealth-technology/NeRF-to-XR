@@ -83,11 +83,14 @@ def main(unused_argv):
             utils.makedirs(out_dir)
         psnr_values = []
         ssim_values = []
+        showcase_index = None
         if not FLAGS.eval_once:
             showcase_index = np.random.randint(0, dataset.size)
+            print(f"Showcase index: {showcase_index}")
         # Let's only evalulate on about 10% of the test dataset
         step_size = dataset.size // 10
-        for idx in range(0, dataset.size, step_size):
+        need_showcase = False
+        for idx in range(dataset.size, step_size):
             print(f"Evaluating {idx+1}/{dataset.size}")
             batch = next(dataset)
             (
@@ -114,6 +117,7 @@ def main(unused_argv):
                 showcase_specular = pred_specular
                 if not FLAGS.render_path:
                     showcase_gt = batch["pixels"]
+                need_showcase = True
 
             if not FLAGS.render_path:
                 psnr = utils.compute_psnr(((pred_color - batch["pixels"]) ** 2).mean())
