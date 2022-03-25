@@ -17,7 +17,7 @@ All of these datasets were for one of our engine GLB models.
 |   4       |    14.30   |   yes | far | 1  | undefined (cube-like)   | 50,000
 |   5       |    29.52   |   yes | far  | 1  | well-defined  | 12,500
 
-## Progress Report, arch 24, 2022
+## Progress Report, March 24, 2022
 
 ### Takeaways
 
