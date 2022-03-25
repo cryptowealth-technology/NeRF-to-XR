@@ -1,4 +1,6 @@
 dataset: blender
+# unlike the default, we will eval on ALL the saved checkpoints of the model
+eval_once: False
 batching: single_image
 factor: 0
 num_coarse_samples: 64
@@ -19,4 +21,3 @@ chunk: 1024
 net_width: 256
 voxel_resolution: 512
 snerg_dtype: float16
-eval_once: False
