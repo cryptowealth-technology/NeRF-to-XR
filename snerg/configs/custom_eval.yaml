@@ -1,6 +1,5 @@
+# intened to be used with eval_multiple_checkpoints.py
 dataset: blender
-# unlike the default, we will eval on ALL the saved checkpoints of the model
-eval_once: False
 batching: single_image
 factor: 0
 num_coarse_samples: 64
@@ -18,6 +17,6 @@ gc_every: 5000
 use_pixel_centers: true
 sparsity_strength: 0.0001
 chunk: 1024
-net_width: 256
+net_width: 512
 voxel_resolution: 512
 snerg_dtype: float16

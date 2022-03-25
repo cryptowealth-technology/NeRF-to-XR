@@ -1,4 +1,4 @@
-# Baking Neural Radiance Fields for Real-Time View-Synthesis
+# [FROM GOOGLE] Baking Neural Radiance Fields for Real-Time View-Synthesis
 
 This repository contains the public source code release for the paper
 [Baking Neural Radiance Fields for Real-Time View-Synthesis (or SNeRG)](http://nerf.live).

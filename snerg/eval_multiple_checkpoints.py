@@ -6,6 +6,7 @@ from os import path
 
 from absl import app
 from absl import flags
+from flask import Flask
 import flax
 from flax.metrics import tensorboard
 from flax.training import checkpoints
@@ -70,9 +71,12 @@ def main(unused_argv):
     )
     if not FLAGS.eval_once:
         summary_writer = tensorboard.SummaryWriter(path.join(FLAGS.train_dir, "eval"))
-    while True:
-        state = checkpoints.restore_checkpoint(FLAGS.train_dir, state)
-        step = int(state.optimizer.state.step)
+    # unlike the provided eval.py, we will eval on ALL the checkpoints of the model
+    for step in range(0, FLAGS.max_steps, FLAGS.save_every):
+        try:
+            state = checkpoints.restore_checkpoint(FLAGS.train_dir, state, step=step)
+        except:  # early out in case the checkpoint isn't available
+            break
         if step <= last_step:
             continue
         if FLAGS.save_output and (not utils.isdir(out_dir)):
@@ -124,32 +128,32 @@ def main(unused_argv):
                     pred_disp[Ellipsis, 0],
                     path.join(out_dir, "disp_{:03d}.png".format(idx)),
                 )
-
+        optim_step = int(state.optimizer.state.step)
         if (not FLAGS.eval_once) and (jax.host_id() == 0):
-            summary_writer.image("pred_color", showcase_color, step)
-            summary_writer.image("pred_disp", showcase_disp, step)
-            summary_writer.image("pred_acc", showcase_acc, step)
-            summary_writer.image("pred_features", showcase_features, step)
-            summary_writer.image("pred_specular", showcase_specular, step)
+            summary_writer.image("pred_color", showcase_color, optim_step)
+            summary_writer.image("pred_disp", showcase_disp, optim_step)
+            summary_writer.image("pred_acc", showcase_acc, optim_step)
+            summary_writer.image("pred_features", showcase_features, optim_step)
+            summary_writer.image("pred_specular", showcase_specular, optim_step)
             if not FLAGS.render_path:
-                summary_writer.scalar("psnr", np.mean(np.array(psnr_values)), step)
-                summary_writer.scalar("ssim", np.mean(np.array(ssim_values)), step)
+                summary_writer.scalar("psnr", np.mean(np.array(psnr_values)), optim_step)
+                summary_writer.scalar("ssim", np.mean(np.array(ssim_values)), optim_step)
                 summary_writer.image("target", showcase_gt, step)
 
         if FLAGS.save_output and (not FLAGS.render_path) and (jax.host_id() == 0):
-            with utils.open_file(path.join(out_dir, f"psnrs_{step}.txt"), "w") as f:
+            with utils.open_file(path.join(out_dir, f"psnrs_{optim_step}.txt"), "w") as f:
                 f.write(" ".join([str(v) for v in psnr_values]))
-            with utils.open_file(path.join(out_dir, f"ssims_{step}.txt"), "w") as f:
+            with utils.open_file(path.join(out_dir, f"ssims_{optim_step}.txt"), "w") as f:
                 f.write(" ".join([str(v) for v in ssim_values]))
             with utils.open_file(path.join(out_dir, "psnr.txt"), "w") as f:
                 f.write("{}".format(np.mean(np.array(psnr_values))))
             with utils.open_file(path.join(out_dir, "ssim.txt"), "w") as f:
                 f.write("{}".format(np.mean(np.array(ssim_values))))
 
-        if FLAGS.eval_once:
-            break
-        if int(step) >= FLAGS.max_steps:
-            break
+        # if FLAGS.eval_once:
+        #     break
+        # if int(step) >= FLAGS.max_steps:
+        #     break
         last_step = step
 
 
