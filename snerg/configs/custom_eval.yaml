@@ -1,4 +1,4 @@
-# intened to be used with eval_multiple_checkpoints.py
+# intended to be used with eval_multiple_checkpoints.py
 dataset: blender
 batching: single_image
 factor: 0
@@ -6,7 +6,7 @@ num_coarse_samples: 64
 num_fine_samples: 128
 use_viewdirs: true
 white_bkgd: true
-batch_size: 1024
+batch_size: 256
 randomized: true
 lr_init: 1.0e-3
 lr_final: 1.0e-4

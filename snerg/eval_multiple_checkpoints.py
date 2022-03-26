@@ -72,12 +72,15 @@ def main(unused_argv):
     if not FLAGS.eval_once:
         summary_writer = tensorboard.SummaryWriter(path.join(FLAGS.train_dir, "eval"))
     # unlike the provided eval.py, we will eval on ALL the checkpoints of the model
-    for step in range(0, FLAGS.max_steps, FLAGS.save_every):
+    first_checkpoint = 0 + FLAGS.save_every
+    for step in range(first_checkpoint, FLAGS.max_steps, FLAGS.save_every):
         try:
             state = checkpoints.restore_checkpoint(FLAGS.train_dir, state, step=step)
         except:  # early out in case the checkpoint isn't available
+            print(f"Could not locate checkpoint_{step}")
             break
         if step <= last_step:
+            print(f"Exiting because step > last_step: {(step, last_step)}")
             continue
         if FLAGS.save_output and (not utils.isdir(out_dir)):
             utils.makedirs(out_dir)
