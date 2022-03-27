@@ -133,7 +133,7 @@ def main(unused_argv):
                 psnr_values.append(float(psnr))
                 ssim_values.append(float(ssim))
                 # CSV: save the PSNR on this sample
-                csv_row[f"Sample_{idx}_PSNR"] = f"{psnr:.4f}"
+                csv_row[f"Sample_{idx + 1}_PSNR"] = f"{psnr:.4f}"
 
             if FLAGS.save_output:
                 utils.save_img(pred_color, path.join(out_dir, "{:03d}.png".format(idx)))
