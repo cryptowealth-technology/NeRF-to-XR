@@ -21,7 +21,7 @@ All of these datasets were for one of our engine GLB models.
 
 ### Takeaways
 
-- This table suggests Trial 1 had worse data quality than Trial 5, as their datasets were both "far" (so they should be comparable), and the former has a PSNR of only  28.72, while the latter has 29.52.
+- This table suggests that the model performed worse in Trial 1 than Trial 5, as the datasets were both "far" (so they should be comparable). Yet on the former, the model only had a PSNR of only 28.72, while it did 29.52 on the latter. This suggests we might need to look at training hyperparameters, like number of iterations.
 - In every case when the depth maps were present, the final output seemed to have color (albeit in Trial 5, it was much less). This suggests *having good depth maps is key to seeing some color* in the final render.
 - In 2/3 trials where the camera was "far", the final render had a well-defined shape. However, in 2/2 trials where the camera was "close", the shape was undefined. This suggests *having the camera farther away is better for getting an accurate shape*. But further detail is needed here, because in Trial 4 the camera was farther away, but the shape was still undefined.
 
