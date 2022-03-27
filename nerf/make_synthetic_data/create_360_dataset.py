@@ -28,7 +28,7 @@ class BlenderDatasetGenerator:
     RESOLUTION = 800  # size of the images (squared)
     DEPTH_SCALE = 1.4
     COLOR_DEPTH = 8
-    FORMAT = "PNG" 
+    FORMAT = "PNG"
     RANDOM_VIEWS = True
     UPPER_VIEWS = True
     CIRCLE_FIXED_START = (0.3, 0, 0)

@@ -1,6 +1,7 @@
 # coding=utf-8
 # Lint as: python3
 """Evaluation script for Nerf."""
+import csv
 import functools
 from os import path
 
@@ -71,7 +72,9 @@ def main(unused_argv):
     )
     if not FLAGS.eval_once:
         summary_writer = tensorboard.SummaryWriter(path.join(FLAGS.train_dir, "eval"))
-    # unlike the provided eval.py, we will eval on ALL the checkpoints of the model
+    # CSV: save the results of the model in tabular form
+    checkpoint_metrics = list()
+    # unlike the provided eval.py, we will eval on ALL the checkpoints
     first_checkpoint = 0 + FLAGS.save_every
     for step in range(first_checkpoint, FLAGS.max_steps, FLAGS.save_every):
         try:
@@ -89,11 +92,12 @@ def main(unused_argv):
         showcase_index = None
         if not FLAGS.eval_once:
             showcase_index = np.random.randint(0, dataset.size)
-            print(f"Showcase index: {showcase_index}")
+        # CSV: before eval'ing samples - init the "row" this represents in our CSV
+        csv_row = {"Checkpoint": step}
         # Let's only evalulate on about 10% of the test dataset
         step_size = dataset.size // 10
         need_showcase = False
-        for idx in range(dataset.size, step_size):
+        for idx in range(0, dataset.size, step_size):
             print(f"Evaluating {idx+1}/{dataset.size}")
             batch = next(dataset)
             (
@@ -128,6 +132,8 @@ def main(unused_argv):
                 print(f"PSNR = {psnr:.4f}, SSIM = {ssim:.4f}")
                 psnr_values.append(float(psnr))
                 ssim_values.append(float(ssim))
+                # CSV: save the PSNR on this sample
+                csv_row[f"Sample_{idx}_PSNR"] = f"{psnr:.4f}"
 
             if FLAGS.save_output:
                 utils.save_img(pred_color, path.join(out_dir, "{:03d}.png".format(idx)))
@@ -136,32 +142,50 @@ def main(unused_argv):
                     path.join(out_dir, "disp_{:03d}.png".format(idx)),
                 )
         optim_step = int(state.optimizer.state.step)
-        if (not FLAGS.eval_once) and (jax.host_id() == 0):
+        if need_showcase and (not FLAGS.eval_once) and (jax.host_id() == 0):
             summary_writer.image("pred_color", showcase_color, optim_step)
             summary_writer.image("pred_disp", showcase_disp, optim_step)
             summary_writer.image("pred_acc", showcase_acc, optim_step)
             summary_writer.image("pred_features", showcase_features, optim_step)
             summary_writer.image("pred_specular", showcase_specular, optim_step)
             if not FLAGS.render_path:
-                summary_writer.scalar("psnr", np.mean(np.array(psnr_values)), optim_step)
-                summary_writer.scalar("ssim", np.mean(np.array(ssim_values)), optim_step)
+                summary_writer.scalar(
+                    "psnr", np.mean(np.array(psnr_values)), optim_step
+                )
+                summary_writer.scalar(
+                    "ssim", np.mean(np.array(ssim_values)), optim_step
+                )
                 summary_writer.image("target", showcase_gt, step)
 
         if FLAGS.save_output and (not FLAGS.render_path) and (jax.host_id() == 0):
-            with utils.open_file(path.join(out_dir, f"psnrs_{optim_step}.txt"), "w") as f:
+            with utils.open_file(
+                path.join(out_dir, f"psnrs_{optim_step}.txt"), "w"
+            ) as f:
                 f.write(" ".join([str(v) for v in psnr_values]))
-            with utils.open_file(path.join(out_dir, f"ssims_{optim_step}.txt"), "w") as f:
+            with utils.open_file(
+                path.join(out_dir, f"ssims_{optim_step}.txt"), "w"
+            ) as f:
                 f.write(" ".join([str(v) for v in ssim_values]))
             with utils.open_file(path.join(out_dir, "psnr.txt"), "w") as f:
                 f.write("{}".format(np.mean(np.array(psnr_values))))
             with utils.open_file(path.join(out_dir, "ssim.txt"), "w") as f:
                 f.write("{}".format(np.mean(np.array(ssim_values))))
 
+        # CSV: before next checkpoint, save the current row
+        checkpoint_metrics.append(csv_row)
+
         # if FLAGS.eval_once:
         #     break
         # if int(step) >= FLAGS.max_steps:
         #     break
         last_step = step
+    # Save to CSV, if needed (credit to nikhilaggarwal3 for this code: https://www.geeksforgeeks.org/writing-csv-files-in-python/)
+    if FLAGS.csv_output_filename:
+        with open(FLAGS.csv_output_filename, "w") as csvfile:
+            # creating a csv dict writer object
+            writer = csv.DictWriter(csvfile, fieldnames=FLAGS.csv_output_headers)
+            writer.writeheader()  # write the headers
+            writer.writerows(checkpoint_metrics)  # write the data rows
 
 
 if __name__ == "__main__":

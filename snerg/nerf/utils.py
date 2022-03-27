@@ -216,6 +216,28 @@ def define_flags():
         "the size of chunks for evaluation inferences, set to the value that"
         "fits your GPU/TPU memory.",
     )
+    flags.DEFINE_list(
+        "csv_output_headers",
+        [
+            "Checkpoint",
+            "Sample_1_PSNR",
+            "Sample_21_PSNR",
+            "Sample_41_PSNR",
+            "Sample_61_PSNR",
+            "Sample_81_PSNR",
+            "Sample_101_PSNR",
+            "Sample_121_PSNR",
+            "Sample_141_PSNR",
+            "Sample_161_PSNR",
+            "Sample_181_PSNR",
+        ],
+        "Headers to use when computing PSNR on several test samples, over multiple checkpoints.",
+    )
+    flags.DEFINE_string(
+        "csv_output_filename",
+        "",
+        "(Optional) name to use when exporting eval metrics to CSV.",
+    )
 
     # Baking flags used for SNeRG
     flags.DEFINE_float(
