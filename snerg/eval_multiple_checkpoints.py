@@ -76,7 +76,8 @@ def main(unused_argv):
     checkpoint_metrics = list()
     # unlike the provided eval.py, we will eval on ALL the checkpoints
     first_checkpoint = 0 + FLAGS.save_every
-    for step in range(first_checkpoint, FLAGS.max_steps, FLAGS.save_every):
+    last_checkpoint = FLAGS.max_steps + FLAGS.save_every
+    for step in range(first_checkpoint, last_checkpoint, FLAGS.save_every):
         try:
             state = checkpoints.restore_checkpoint(FLAGS.train_dir, state, step=step)
         except:  # early out in case the checkpoint isn't available

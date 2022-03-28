@@ -12,7 +12,7 @@
 
 # The Dataset
 - 100 training, 100 val, 200 testing
-- depth maps were basically invisible
+- depth maps were present 
 - **camera was farther away** from the engine
 - Data dir name: `engine_5_ds`
 

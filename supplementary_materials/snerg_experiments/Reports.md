@@ -36,12 +36,18 @@ All of these datasets were for one of our engine GLB models.
 
     3. *Results*: see below
     
-    ![A plot showing how PSNR changed every 2,500 iterations, on Trial 4 and 5.](TODO: make a new plot, with just all of the epochs of Trial 4)
+    ![A plot showing how PSNR changed every 2,500 iterations, on Trial 4 and 5.](Trial_4_PSNR_by_time.png)
 
-    Initial conclusions: Both 
+    Initial conclusions: 
+    1. *caveat*: thanks to a bug in our code, I haven't yet been able to compute the mean_PSNR exactly as I wanted to for all of Trial 4's checkpoints (I colored the last bar in the plot above to show where it's different) - BUT, I do think the bars that we have are similar enough to use for comparison (the mean_PSNR for the first 19 checkpoints was computed over just 10 test images, while the last was over all 100).
+    2. similar to the table above, the PSNR values in this plot do seem to increase, then fall. At checkpoint 5,000 the mean_PSNR in this graph is about 19 - by checkpoint 12,500 it is has then risen to approx. 20. However, by checkpoint 50,000 it is much lower.
+    3. on the other hand, the mean_PSNR values in the bar chart are noticeably lower than those found in the Table above, (when we look at the checkpoints for 5,000 and 12,500, and compare them to the PSNR's in Trial 1 and 5 respectively). This might be a big deal, as an explanation could just be that the extra refining steps that are done in the `bake.py` (and not in our `eval` script) help increase the mean_PSNR by a little more. 
+    4. finally, the mean_PSNR seems to peak at checkpoint 25,000. This is the only bar that clearly rises above 20, thus **suggesting 25,000 could be the best number of iterations to train SNeRG for** (with a dataset that's comparable to Trial 4's data).
+
+<br>
 
 2. **Data-centric:** What is the relationship between the camera distance from the model (when generating the dataset), and the quality of the eventual model (particularly in terms of the shape)?
 
-    1. *To test*: once we know the right number of iterations to have (from answering #1), we could go ahead and generate 3 new datasets. We would measure the exact distance the camera is in each, to ensure one is "close", "far", and also maybe have 1 that's "middle". Finally, we could train SNeRG on all of them, to the right number of iterations, and compare how well the shape comes out (in terms of both PSNR, and SSIM).
+    1. *To test*: if we really can't seem to get things to work through hyperparameter tuning (and we haven't yet), THEN once we know the right number of iterations to have (from answering #1), we could go ahead and generate 3 new datasets. We would measure the exact distance the camera is in each, to ensure one is "close", "far", and also maybe have 1 that's "middle". Finally, we could train SNeRG on all of them, to the right number of iterations, and compare how well the shape comes out (in terms of both PSNR, and SSIM).
 
 
