@@ -38,12 +38,14 @@ class SimpleSampler:
 
 @torch.no_grad()
 def render_test(args):
-    # init dataset
+    """This is what gets called to do rendering!!!"""
+    # A: init dataset
     dataset = dataset_dict[args.dataset_name]
     test_dataset = dataset(args.datadir, split='test', downsample=args.downsample_train, is_stack=True)
     white_bg = test_dataset.white_bg
     ndc_ray = args.ndc_ray
 
+    # B: load the model
     if not os.path.exists(args.ckpt):
         print('the ckpt path does not exists!!')
         return
@@ -54,6 +56,7 @@ def render_test(args):
     tensorf = eval(args.model_name)(**kwargs)
     tensorf.load(ckpt)
 
+    # Create logging output for the rendered images
     logfolder = os.path.dirname(args.ckpt)
     if args.render_train:
         os.makedirs(f'{logfolder}/imgs_train_all', exist_ok=True)
@@ -66,7 +69,7 @@ def render_test(args):
         os.makedirs(f'{logfolder}/{args.expname}/imgs_test_all', exist_ok=True)
         evaluation(test_dataset,tensorf, args, renderer, f'{logfolder}/{args.expname}/imgs_test_all/',
                                 N_vis=-1, N_samples=-1, white_bg = white_bg, ndc_ray=ndc_ray,device=device)
-
+    # is this what an in-browser would need?
     if args.render_path:
         c2ws = test_dataset.render_path
         os.makedirs(f'{logfolder}/{args.expname}/imgs_path_all', exist_ok=True)
