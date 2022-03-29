@@ -16,6 +16,7 @@ All of these datasets were for one of our engine GLB models.
 |   3       |    10.53   |   yes | close  | 1  | undefined (cube-like)   | 50,000
 |   4       |    14.30   |   yes | far | 1  | undefined (cube-like)   | 50,000
 |   5       |    29.52   |   yes | far  | 1  | well-defined  | 12,500
+|   6       |    30.98   |   yes | far  | 1  | well-defined  | 25,000
 
 ## Progress Report, March 24, 2022
 
@@ -49,5 +50,7 @@ All of these datasets were for one of our engine GLB models.
 2. **Data-centric:** What is the relationship between the camera distance from the model (when generating the dataset), and the quality of the eventual model (particularly in terms of the shape)?
 
     1. *To test*: if we really can't seem to get things to work through hyperparameter tuning (and we haven't yet), THEN once we know the right number of iterations to have (from answering #1), we could go ahead and generate 3 new datasets. We would measure the exact distance the camera is in each, to ensure one is "close", "far", and also maybe have 1 that's "middle". Finally, we could train SNeRG on all of them, to the right number of iterations, and compare how well the shape comes out (in terms of both PSNR, and SSIM).
+
+    2. *Results*: based on the results of Trial 6, we can see we were able to improve PSNR over previous Trials, and we didn't need to use a camera distance that was very different from what was used in past "far" dataset. This suggests that camera distance might not the most important parameter to focus on right now.
 
 
