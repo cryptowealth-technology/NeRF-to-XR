@@ -5,11 +5,11 @@ num_coarse_samples: 64
 num_fine_samples: 128
 use_viewdirs: true
 white_bkgd: true
-batch_size: 256
+batch_size: 256  # smaller than demo, blender
 randomized: true
 lr_init: 1.0e-3
 lr_final: 1.0e-4
-max_steps: 25000
+max_steps: 25000  # smaller than demo, blender
 save_every: 2500
 render_every: 1200
 gc_every: 5000

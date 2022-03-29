@@ -1,0 +1,21 @@
+dataset: blender
+batching: single_image
+factor: 0
+num_coarse_samples: 64
+num_fine_samples: 128
+use_viewdirs: true
+white_bkgd: true
+batch_size: 512  # increasing, because more training steps and I want to go faster
+randomized: true
+lr_init: 1.0e-3
+lr_final: 1.0e-4
+max_steps: 1000000  # increasing, to see if the output is better
+save_every: 2500
+render_every: 1200
+gc_every: 5000
+use_pixel_centers: true
+sparsity_strength: 0.0001
+chunk: 512  # decreasing, b/c our batch size is bigger
+net_width: 256
+voxel_resolution: 1000  # increasing, to see if the output is better (b/c trial 6 dataset seems to be good)
+snerg_dtype: float16  # leaving this the same as Trial 6 for now, to conserve CPU memory
