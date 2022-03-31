@@ -17,7 +17,7 @@ tmp/*
 events.out.tfevents*
 *assets*
 *.txt
-!supplementary_materials/snerg_experiments/*.png
+!supplementary_materials/experiments/*.png
 
 # Custom Script for Exporting Benchmarking Data
 save.py
