@@ -4,6 +4,7 @@
 *.npy
 *.npz
 *.dae
+*.th
 *.glb
 *.gltf
 aws/*
@@ -17,7 +18,8 @@ tmp/*
 events.out.tfevents*
 *assets*
 *.txt
-!supplementary_materials/snerg_experiments/*.png
+!*engine.txt
+!supplementary_materials/experiments/*.png
 
 # Custom Script for Exporting Benchmarking Data
 save.py
