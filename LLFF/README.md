@@ -2,7 +2,7 @@
 
 <br><br><br><br>
 
-# Local Light Field Fusion
+# [FROM ORIGINAL] Local Light Field Fusion
 ### [Project](https://bmild.github.io/llff) | [Video](https://youtu.be/LY6MgDUzS3M) | [Paper](https://arxiv.org/abs/1905.00889) 
 
 Tensorflow implementation for novel view synthesis from sparse input images.<br><br>
