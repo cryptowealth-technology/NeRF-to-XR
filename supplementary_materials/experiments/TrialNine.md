@@ -4,7 +4,7 @@
 1. File_name: `TensoRF/configs/engine.yaml`
 2. Modifications: None (it's the same as `lego.txt`)
 3. Num_iterations: 30K
-4. Did the model converge? yes - the TensorBoard logs do seem to show 
+4. Did the model converge? yes - the [TensorBoard logs](https://tensorboard.dev/experiment/bEhlsvZ3SqiRNI5yQu2kew/#scalars) do seem to show the loss and `train_PSNR` hitting a plateau
 
 ## The Dataset - same as Trial 6
 - 100 training, 100 val, 200 testing

@@ -37,15 +37,26 @@ class SimpleSampler:
 
 
 @torch.no_grad()
+def export_mesh(args):
+
+    ckpt = torch.load(args.ckpt, map_location=device)
+    kwargs = ckpt['kwargs']
+    kwargs.update({'device': device})
+    tensorf = eval(args.model_name)(**kwargs)
+    tensorf.load(ckpt)
+
+    alpha,_ = tensorf.getDenseAlpha()
+    convert_sdf_samples_to_ply(alpha.cpu(), f'{args.ckpt[:-3]}.ply',bbox=tensorf.aabb.cpu(), level=0.005)
+
+
+@torch.no_grad()
 def render_test(args):
-    """This is what gets called to do rendering!!!"""
-    # A: init dataset
+    # init dataset
     dataset = dataset_dict[args.dataset_name]
     test_dataset = dataset(args.datadir, split='test', downsample=args.downsample_train, is_stack=True)
     white_bg = test_dataset.white_bg
     ndc_ray = args.ndc_ray
 
-    # B: load the model
     if not os.path.exists(args.ckpt):
         print('the ckpt path does not exists!!')
         return
@@ -56,7 +67,6 @@ def render_test(args):
     tensorf = eval(args.model_name)(**kwargs)
     tensorf.load(ckpt)
 
-    # Create logging output for the rendered images
     logfolder = os.path.dirname(args.ckpt)
     if args.render_train:
         os.makedirs(f'{logfolder}/imgs_train_all', exist_ok=True)
@@ -69,7 +79,7 @@ def render_test(args):
         os.makedirs(f'{logfolder}/{args.expname}/imgs_test_all', exist_ok=True)
         evaluation(test_dataset,tensorf, args, renderer, f'{logfolder}/{args.expname}/imgs_test_all/',
                                 N_vis=-1, N_samples=-1, white_bg = white_bg, ndc_ray=ndc_ray,device=device)
-    # is this what an in-browser would need?
+
     if args.render_path:
         c2ws = test_dataset.render_path
         os.makedirs(f'{logfolder}/{args.expname}/imgs_path_all', exist_ok=True)
@@ -223,7 +233,7 @@ def reconstruction(args):
             PSNRs = []
 
 
-        if iteration % args.vis_every == args.vis_every - 1:
+        if iteration % args.vis_every == args.vis_every - 1 and args.N_vis!=0:
             PSNRs_test = evaluation(test_dataset,tensorf, args, renderer, f'{logfolder}/imgs_vis/', N_vis=args.N_vis,
                                     prtx=f'{iteration:06d}_', N_samples=nSamples, white_bg = white_bg, ndc_ray=ndc_ray, compute_extra_metrics=False)
             summary_writer.add_scalar('test/psnr', np.mean(PSNRs_test), global_step=iteration)
@@ -297,6 +307,9 @@ if __name__ == '__main__':
 
     args = config_parser()
     print(args)
+
+    if  args.export_mesh:
+        export_mesh(args)
 
     if args.render_only and (args.render_test or args.render_path):
         render_test(args)

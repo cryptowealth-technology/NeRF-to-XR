@@ -23,7 +23,6 @@ def OctreeRender_trilinear_fast(rays, tensorf, chunk=4096, N_samples=-1, ndc_ray
 @torch.no_grad()
 def evaluation(test_dataset,tensorf, args, renderer, savePath=None, N_vis=5, prtx='', N_samples=-1,
                white_bg=False, ndc_ray=False, compute_extra_metrics=True, device='cuda'):
-    print("evaluation has been called! let's see what it does - Zain :)")
     PSNRs, rgb_maps, depth_maps = [], [], []
     ssims,l_alex,l_vgg=[],[],[]
     os.makedirs(savePath, exist_ok=True)
@@ -35,7 +34,7 @@ def evaluation(test_dataset,tensorf, args, renderer, savePath=None, N_vis=5, prt
         pass
 
     near_far = test_dataset.near_far
-    img_eval_interval = 1 if N_vis < 0 else test_dataset.all_rays.shape[0] // N_vis
+    img_eval_interval = 1 if N_vis < 0 else max(test_dataset.all_rays.shape[0] // N_vis,1)
     idxs = list(range(0, test_dataset.all_rays.shape[0], img_eval_interval))
     for idx, samples in tqdm(enumerate(test_dataset.all_rays[0::img_eval_interval]), file=sys.stdout):
 
@@ -90,7 +89,6 @@ def evaluation(test_dataset,tensorf, args, renderer, savePath=None, N_vis=5, prt
 @torch.no_grad()
 def evaluation_path(test_dataset,tensorf, c2ws, renderer, savePath=None, N_vis=5, prtx='', N_samples=-1,
                     white_bg=False, ndc_ray=False, compute_extra_metrics=True, device='cuda'):
-    print("evaluation_path has been called! let's see what it does - Zain :)")
     PSNRs, rgb_maps, depth_maps = [], [], []
     ssims,l_alex,l_vgg=[],[],[]
     os.makedirs(savePath, exist_ok=True)
