@@ -171,6 +171,7 @@ class TVLoss(nn.Module):
         return t.size()[1] * t.size()[2] * t.size()[3]
 
 
+from pygltflib import GLTF2
 import plyfile
 import skimage.measure
 
@@ -236,3 +237,18 @@ def convert_sdf_samples_to_ply(
     ply_data = plyfile.PlyData([el_verts, el_faces])
     print("saving mesh to %s" % (ply_filename_out))
     ply_data.write(ply_filename_out)
+
+
+def convert_gltf_to_ply(ply_filename_in, glb_file_out):
+    """
+    Attempts to convert a saved .ply to a .glb file.
+
+    :ply_filename_in: string, path of the .ply file
+
+    This function is based on the docs for pygltflib: https://pypi.org/project/pygltflib/
+    Currently it is NOT working:
+        - follow this issue for progress: https://github.com/UPstartDeveloper/NeRF-to-XR/issues/25
+        - for now we can use this website: https://gltf-converter.lewy.blue/
+    """
+    glb = GLTF2().load_binary(ply_filename_in)
+    glb.save(glb_file_out)
