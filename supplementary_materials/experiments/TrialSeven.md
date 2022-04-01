@@ -25,8 +25,8 @@
 
 *Figure 1*: Below I have pasted one of the predictions that the model made on its last step, along with the corresponding ground truth image. Although we can see the model is inching towards accurate colors and well-defined shapes (which makes sense, because it's the highest PSNR ever), we can see that the prediction is still missing some of the finer details. E.g. the model is not yet quite able to distinctly render all holes and wires on the front of the engine.
 
-![Trial 7 prediction image, for the front of the car](trial7_front.png)
-![Trial 7 - test dataset image, for the front of the car](trial7_front_truth.png)
+![Trial 7 prediction image, for the front of the engine](trial7_front.png)
+![Trial 7 - test dataset image, for the front of the engine](trial7_front_truth.png)
 
 ## Performance 
 Going to SKIP for now - these come out essentially the same each trial, because there aren't that many changes happening in the algorithm/ground truth data. 

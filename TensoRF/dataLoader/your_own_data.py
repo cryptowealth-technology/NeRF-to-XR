@@ -10,7 +10,7 @@ from torchvision import transforms as T
 from .ray_utils import *
 
 
-class BlenderDataset(Dataset):
+class YourOwnDataset(Dataset):
     def __init__(
         self, datadir, split="train", downsample=1.0, is_stack=False, N_vis=-1
     ):
@@ -19,7 +19,7 @@ class BlenderDataset(Dataset):
         self.root_dir = datadir
         self.split = split
         self.is_stack = is_stack
-        self.img_wh = (int(800 / downsample), int(800 / downsample))
+        self.downsample = downsample
         self.define_transforms()
 
         self.scene_bbox = torch.tensor([[-1.5, -1.5, -1.5], [1.5, 1.5, 1.5]])
@@ -30,7 +30,7 @@ class BlenderDataset(Dataset):
         self.define_proj_mat()
 
         self.white_bg = True
-        self.near_far = [2.0, 6.0]
+        self.near_far = [0.1, 100.0]
 
         self.center = torch.mean(self.scene_bbox, axis=0).float().view(1, 1, 3)
         self.radius = (self.scene_bbox[1] - self.center).float().view(1, 1, 3)
@@ -47,23 +47,27 @@ class BlenderDataset(Dataset):
         ) as f:
             self.meta = json.load(f)
 
-        w, h = self.img_wh
-        self.focal = (
-            0.5 * 800 / np.tan(0.5 * self.meta["camera_angle_x"])
+        w, h = int(self.meta["w"] / self.downsample), int(
+            self.meta["h"] / self.downsample
+        )
+        self.img_wh = [w, h]
+        self.focal_x = (
+            0.5 * w / np.tan(0.5 * self.meta["camera_angle_x"])
         )  # original focal length
-        self.focal *= (
-            self.img_wh[0] / 800
-        )  # modify focal length to match size self.img_wh
+        self.focal_y = (
+            0.5 * h / np.tan(0.5 * self.meta["camera_angle_y"])
+        )  # original focal length
+        self.cx, self.cy = self.meta["cx"], self.meta["cy"]
 
         # ray directions for all pixels, same for all images (same H, W, focal)
         self.directions = get_ray_directions(
-            h, w, [self.focal, self.focal]
+            h, w, [self.focal_x, self.focal_y], center=[self.cx, self.cy]
         )  # (h, w, 3)
         self.directions = self.directions / torch.norm(
             self.directions, dim=-1, keepdim=True
         )
         self.intrinsics = torch.tensor(
-            [[self.focal, 0, w / 2], [0, self.focal, h / 2], [0, 0, 1]]
+            [[self.focal_x, 0, self.cx], [0, self.focal_y, self.cy], [0, 0, 1]]
         ).float()
 
         self.image_paths = []
@@ -72,7 +76,6 @@ class BlenderDataset(Dataset):
         self.all_rgbs = []
         self.all_masks = []
         self.all_depth = []
-        self.downsample = 1.0
 
         img_eval_interval = (
             1 if self.N_vis < 0 else len(self.meta["frames"]) // self.N_vis
@@ -94,8 +97,9 @@ class BlenderDataset(Dataset):
             if self.downsample != 1.0:
                 img = img.resize(self.img_wh, Image.LANCZOS)
             img = self.transform(img)  # (4, h, w)
-            img = img.view(4, -1).permute(1, 0)  # (h*w, 4) RGBA
-            img = img[:, :3] * img[:, -1:] + (1 - img[:, -1:])  # blend A to RGB
+            img = img.view(-1, w * h).permute(1, 0)  # (h*w, 4) RGBA
+            if img.shape[-1] == 4:
+                img = img[:, :3] * img[:, -1:] + (1 - img[:, -1:])  # blend A to RGB
             self.all_rgbs += [img]
 
             rays_o, rays_d = get_rays(self.directions, c2w)  # both (h*w, 3)
@@ -144,5 +148,5 @@ class BlenderDataset(Dataset):
             rays = self.all_rays[idx]
             mask = self.all_masks[idx]  # for quantity evaluation
 
-            sample = {"rays": rays, "rgbs": img, "mask": mask}
+            sample = {"rays": rays, "rgbs": img}
         return sample
