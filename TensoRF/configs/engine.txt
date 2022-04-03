@@ -1,7 +1,7 @@
 
 dataset_name = blender
 datadir = /home/ec2-user/NeRF-to-XR/engine_6_ds
-expname =  tensorf_lego_VM
+expname =  tensorf_engine_VM
 basedir = ./log
 
 n_iters = 30000
