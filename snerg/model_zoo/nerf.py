@@ -14,7 +14,6 @@
 # limitations under the License.
 
 # Lint as: python3
-"""Different model implementation plus a general port for all the models."""
 from typing import Any, Callable
 from flax import linen as nn
 from jax import random
