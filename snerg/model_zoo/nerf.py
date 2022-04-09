@@ -37,7 +37,7 @@ class NerfModel(nn.Module):
     num_viewdir_channels: int  # The number of extra channels for view-dependence.
     viewdir_net_depth: int  # The depth of the view-dependence MLP.
     viewdir_net_width: int  # The width of the view-dependence MLP.
-    net_activation: Callable[Ellipsis, Any]  # MLP activation
+    net_activation: Callable[..., Any]  # MLP activation
     skip_layer: int  # How often to add skip connections.
     num_rgb_channels: int  # The number of RGB channels.
     num_sigma_channels: int  # The number of density channels.
@@ -46,8 +46,8 @@ class NerfModel(nn.Module):
     max_deg_point: int  # The maximum degree of positional encoding for positions.
     deg_view: int  # The degree of positional encoding for viewdirs.
     lindisp: bool  # If True, sample linearly in disparity rather than in depth.
-    rgb_activation: Callable[Ellipsis, Any]  # Output RGB activation.
-    sigma_activation: Callable[Ellipsis, Any]  # Output sigma activation.
+    rgb_activation: Callable[..., Any]  # Output RGB activation.
+    sigma_activation: Callable[..., Any]  # Output sigma activation.
     legacy_posenc_order: bool  # Keep the same ordering as the original tf code.
 
     @nn.compact

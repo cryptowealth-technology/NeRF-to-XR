@@ -8,10 +8,9 @@ from jax import random
 import jax.numpy as jnp
 import torch
 
-from snerg.model_zoo import model_utils
 from snerg.model_zoo import utils
 from TensoRF.models import tensoRF
-import TensoRF.utils as trf_utils N_to_reso
+import TensoRF.utils as trf_utils
 
 
 class TensorfModel(nn.Module):
@@ -48,15 +47,15 @@ class TensorfModel(nn.Module):
     num_ray_samples: int  # the number of sampling points on each ray
 
     DECOMP_METHODS = {
-        'CP': tensoRF.TensorCP, 
-        'VM': tensoRF.TensorVM,
-        'VMSplit': tensoRF.TensorVMSplit
+        "CP": tensoRF.TensorCP,
+        "VM": tensoRF.TensorVM,
+        "VMSplit": tensoRF.TensorVMSplit,
     }
 
     DEVICE_BACKEND = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def setup(self):
-        # A: grab the checkpoint file 
+        # A: grab the checkpoint file
         ckpt = torch.load(self.checkpoint_path, map_location=self.DEVICE_BACKEND)
         kwargs = ckpt["kwargs"]
         kwargs.update({"device": self.DEVICE_BACKEND})
@@ -76,13 +75,10 @@ class TensorfModel(nn.Module):
         reso_cur = trf_utils.N_to_reso(self.N_voxel_init, aabb)
         # B: now we can calculate the num_samples!
         true_num_samples = min(
-            self.num_ray_samples, 
-            trf_utils.cal_n_samples(
-                reso_cur, self.tensorf.step_ratio
-            )
+            self.num_ray_samples,
+            trf_utils.cal_n_samples(reso_cur, self.tensorf.step_ratio),
         )
         return true_num_samples
-
 
     @nn.compact
     def __call__(self, rng_0, rng_1, rays, randomized):

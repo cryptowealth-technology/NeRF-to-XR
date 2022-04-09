@@ -19,8 +19,5 @@ from snerg.model_zoo import nerf, tensorf
 
 def get_model(key, example_batch, args):
     """A helper function that wraps around a 'model zoo'."""
-    model_dict = {
-        "nerf": nerf.construct_nerf,
-        "tensorf": tensorf.construct_tensorf
-    }
+    model_dict = {"nerf": nerf.construct_nerf, "tensorf": tensorf.construct_tensorf}
     return model_dict[args.model](key, example_batch, args)

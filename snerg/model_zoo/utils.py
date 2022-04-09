@@ -329,22 +329,22 @@ def define_flags():
         "tensorf_method",
         "",
         "If using TensoRF, specify which method of decomposition to use. \
-         Can be one of either 'CP', 'VM', or 'VMSplit'."
+         Can be one of either 'CP', 'VM', or 'VMSplit'.",
     )
     flags.DEFINE_string(
         "tensorf_checkpoint",
         "",
-        "If using TensoRF, specify the path to the saved checkpoint weights."
+        "If using TensoRF, specify the path to the saved checkpoint weights.",
     )
     flags.DEFINE_integer(
         "N_voxel_init",
-        2097156, # 128**3
-        "If using TensoRF..."  # TODO[why is this needed again?]
+        2097156,  # 128**3
+        "If using TensoRF...",  # TODO[why is this needed again?]
     )
     flags.DEFINE_integer(
         "num_ray_samples",
         1e6,
-        "Number of sample points on each ray. Default is to auto-adjust."  # TODO[verify, look at TensoRF src code]
+        "Number of sample points on each ray. Default is to auto-adjust.",  # TODO[verify, look at TensoRF src code]
     )
 
 
