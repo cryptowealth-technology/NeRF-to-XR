@@ -1,0 +1,29 @@
+# THESE are the most important flags to set, to bake using a TensoRF
+# (it must already have been trained!)
+dataset: blender
+tensorf_method: "VMSplit"
+tensorf_checkpoint: "TODO"
+N_voxel_init: 2097156 # 128**3
+
+# These are copied from the normal blender.yaml
+batching: single_image
+factor: 0
+num_coarse_samples: 192
+num_fine_samples: 384
+use_viewdirs: true
+white_bkgd: true
+batch_size: 2048
+randomized: true
+lr_init: 5.0e-4
+lr_final: 5.0e-6
+lr_delay_steps: 2500
+lr_delay_mult: 0.1
+max_steps: 1000000
+save_every: 2500
+render_every: 1200
+gc_every: 5000
+use_pixel_centers: true
+sparsity_strength: 0.0001
+chunk: 2048
+net_width: 512
+voxel_resolution: 1000

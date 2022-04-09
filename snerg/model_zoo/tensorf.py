@@ -2,17 +2,20 @@
 # Lint as: python3
 
 from typing import Any, Callable
+
 from flax import linen as nn
 from jax import random
 import jax.numpy as jnp
+import torch
 
 from snerg.model_zoo import model_utils
 from snerg.model_zoo import utils
 from TensoRF.models import tensoRF
+import TensoRF.utils as trf_utils N_to_reso
 
 
 class TensorfModel(nn.Module):
-    """TensoRF NN Model with both coarse and fine MLPs."""
+    """TensoRF NN Model."""
 
     num_coarse_samples: int  # The number of samples for the coarse nerf.
     num_fine_samples: int  # The number of samples for the fine nerf.
@@ -37,54 +40,88 @@ class TensorfModel(nn.Module):
     rgb_activation: Callable[..., Any]  # Output RGB activation.
     sigma_activation: Callable[..., Any]  # Output sigma activation.
     legacy_posenc_order: bool  # Keep the same ordering as the original tf code.
+    decomp_method: str  # The method of decomposition. 1 of ['CP', 'VM', 'VMSplit'].
+    checkpoint_path: str  # The checkpoint saved from training (using the TensoRF modules).
+    is_llff_360_scene: bool
+    dataset: str  # the type of data loader used, e.g. "blender", "llff", etc.
+    N_voxel_init: int  # TODO[explain what this is?]
+    num_ray_samples: int  # the number of sampling points on each ray
+
+    DECOMP_METHODS = {
+        'CP': tensoRF.TensorCP, 
+        'VM': tensoRF.TensorVM,
+        'VMSplit': tensoRF.TensorVMSplit
+    }
+
+    DEVICE_BACKEND = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    def setup(self):
+        # A: grab the checkpoint file 
+        ckpt = torch.load(self.checkpoint_path, map_location=self.DEVICE_BACKEND)
+        kwargs = ckpt["kwargs"]
+        kwargs.update({"device": self.DEVICE_BACKEND})
+        # B: instantiate the appropiate TensoRF
+        self.tensorf = self.DECOMP_METHODS[self.decomp_method](**kwargs)
+        self.tensorf.load(ckpt)
+
+    def determine_num_samples(self) -> int:
+        """Uses the config file and other info to give a precise answer."""
+        # A: initialize all the variables needed to find the number of samples
+        scene_bbox_sizes = {
+            # these values correspond are from the TensoRF.dataLoader package
+            "blender": torch.tensor([[-1.5, -1.5, -1.5], [1.5, 1.5, 1.5]]),
+            "llff": torch.tensor([[-1.5, -1.67, -1.0], [1.5, 1.67, 1.0]]),
+        }
+        aabb = scene_bbox_sizes[self.dataset_type]
+        reso_cur = trf_utils.N_to_reso(self.N_voxel_init, aabb)
+        # B: now we can calculate the num_samples!
+        true_num_samples = min(
+            self.num_ray_samples, 
+            trf_utils.cal_n_samples(
+                reso_cur, self.tensorf.step_ratio
+            )
+        )
+        return true_num_samples
+
 
     @nn.compact
     def __call__(self, rng_0, rng_1, rays, randomized):
-        """TensoRF Model.
+        """Returns the predictions of TensoRF.
 
-        Args:
-          rng_0: jnp.ndarray, random number generator for coarse model sampling.
-          rng_1: jnp.ndarray, random number generator for fine model sampling.
-          rays: util.Rays, a namedtuple of ray origins, directions, and viewdirs.
-          randomized: bool, use randomized stratified sampling.
+        Parameters:
+            rng_0: jnp.ndarray, random number generator for coarse model sampling.
+            rng_1: jnp.ndarray, random number generator for fine model sampling.
+            rays: util.Rays, a namedtuple of ray origins, directions, and viewdirs.
+                  Assumed to be just 1 batch.
+            randomized: bool, use randomized stratified sampling.
 
         Returns:
-          ret: list, [(rgb_coarse, disp_coarse, acc_coarse, features_coarse,
-          specular_coarse), (rgb, disp, acc, features, specular)]
+            tuple, (rgb, sigma, alpha, weight, bg_weight)
         """
-        # Stratified sampling along rays
-        key, rng_0 = random.split(rng_0)
-        z_vals, coarse_samples = model_utils.sample_along_rays(
-            key,
-            rays.origins,
-            rays.directions,
-            self.num_coarse_samples,
-            self.near,
-            self.far,
-            randomized,
-            self.lindisp,
+        # make prediction
+        num_samples = self.determine_num_samples()
+        rgb_map, depth_map = self.tensorf(
+            rays,
+            is_train=False,  # train using the PyTorch classes
+            white_bg=self.white_bkgd,
+            ndc_ray=self.is_llff_360_scene,
+            N_samples=num_samples,
         )
-        coarse_samples_enc = model_utils.posenc(
-            coarse_samples,
-            self.min_deg_point,
-            self.max_deg_point,
-            self.legacy_posenc_order,
-        )
-        # TODO: make the PyTorch tensors from TensoRF compatible with JAX
-        pass
+        # we're not called directly during baking - return as is
+        return rgb_map, depth_map  # rgb, sigma, alpha, weight, bg_weight
 
 
 def construct_tensorf(key, example_batch, args):
     """Construct a JAX-compatible, Tensorial Radiance Field.
 
-    Args:
-      key: jnp.ndarray. Random number generator.
-      example_batch: dict, an example of a batch of data.
-      args: FLAGS class. Hyperparameters of nerf.
+    Parameters:
+        key: jnp.ndarray. Random number generator.
+        example_batch: dict, an example of a batch of data.
+        args: FLAGS class. Hyperparameters of nerf.
 
     Returns:
-      model: nn.Model. TensoRF model with parameters.
-      state: flax.Module.state. odel state for stateful parameters.
+        model: nn.Model. TensoRF model with parameters.
+        state: flax.Module.state. odel state for stateful parameters.
     """
     net_activation = nn.relu
     rgb_activation = nn.sigmoid
@@ -111,7 +148,7 @@ def construct_tensorf(key, example_batch, args):
             )
         )
 
-    # TODO: init the model
+    # init the model
     model = TensorfModel(
         min_deg_point=args.min_deg_point,
         max_deg_point=args.max_deg_point,
@@ -136,6 +173,12 @@ def construct_tensorf(key, example_batch, args):
         rgb_activation=rgb_activation,
         sigma_activation=sigma_activation,
         legacy_posenc_order=args.legacy_posenc_order,
+        decomp_method=args.tensorf_method,
+        checkpoint_path=args.tensorf_checkpoint,
+        is_llff_360_scene=(args.dataset == "llff" and not args.spherify),
+        dataset_type=args.dataset,
+        N_voxel_init=args.N_voxel_init,
+        num_ray_samples=args.num_ray_samples,
     )
     rays = example_batch["rays"]
     key1, key2, key3 = random.split(key, num=3)

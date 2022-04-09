@@ -324,6 +324,29 @@ def define_flags():
         "Data-type used in the 3D texture atlas, float16 may conserve CPU RAM.",
     )
 
+    # Baking flags specific to TensoRF
+    flags.DEFINE_string(
+        "tensorf_method",
+        "",
+        "If using TensoRF, specify which method of decomposition to use. \
+         Can be one of either 'CP', 'VM', or 'VMSplit'."
+    )
+    flags.DEFINE_string(
+        "tensorf_checkpoint",
+        "",
+        "If using TensoRF, specify the path to the saved checkpoint weights."
+    )
+    flags.DEFINE_integer(
+        "N_voxel_init",
+        2097156, # 128**3
+        "If using TensoRF..."  # TODO[why is this needed again?]
+    )
+    flags.DEFINE_integer(
+        "num_ray_samples",
+        1e6,
+        "Number of sample points on each ray. Default is to auto-adjust."  # TODO[verify, look at TensoRF src code]
+    )
+
 
 def update_flags(args):
     """Update the flags in `args` with the contents of the config YAML file."""
