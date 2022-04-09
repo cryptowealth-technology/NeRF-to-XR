@@ -14,3 +14,16 @@ tensorflow-hub>=0.11.0
 # flax==0.4.0
 # jax==0.3.1
 # jaxlib==0.1.74+cuda11.cudnn82
+
+# TensoRF-specific
+imageio-ffmpeg
+kornia
+lpips
+scikit-image
+torch
+torchvision  
+
+# NOTE: if you plan to train/export a TensoRF with this 
+# environment, then also uncomment the next 2 lines:
+# tqdm 
+# plyfile
