@@ -26,8 +26,8 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_hub as tf_hub
 
-from snerg.nerf import datasets
-from snerg.nerf import utils
+from snerg.model_zoo import datasets
+from snerg.model_zoo import utils
 from snerg.snerg import model_utils
 from snerg.snerg import rendering
 

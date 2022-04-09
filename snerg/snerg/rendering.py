@@ -19,7 +19,7 @@
 import numpy as np
 import tensorflow as tf
 
-from snerg.nerf import datasets
+from snerg.model_zoo import datasets
 from snerg.snerg import model_utils
 
 

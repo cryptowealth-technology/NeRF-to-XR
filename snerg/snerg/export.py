@@ -24,7 +24,7 @@ import numpy as np
 from PIL import Image
 import tensorflow as tf
 
-from snerg.nerf import utils
+from snerg.model_zoo import utils
 
 
 def save_8bit_png(img_and_path):

@@ -22,7 +22,7 @@ import jax
 from jax import lax
 import jax.numpy as jnp
 
-from snerg.nerf import model_utils
+from snerg.model_zoo import model_utils
 
 
 def extract_snerg_mlps(optimized_model, scene_params):

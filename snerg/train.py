@@ -30,9 +30,9 @@ from jax import random
 import jax.numpy as jnp
 import numpy as np
 
-from snerg.nerf import datasets
-from snerg.nerf import models
-from snerg.nerf import utils
+from snerg.model_zoo import datasets
+from snerg import model_zoo
+from snerg.model_zoo import utils
 
 FLAGS = flags.FLAGS
 
@@ -157,7 +157,7 @@ def main(unused_argv):
     test_dataset = datasets.get_dataset("test", FLAGS)
 
     rng, key = random.split(rng)
-    model, variables = models.get_model(key, dataset.peek(), FLAGS)
+    model, variables = model_zoo.get_model(key, dataset.peek(), FLAGS)
     optimizer = flax.optim.Adam(FLAGS.lr_init).create(variables)
     state = utils.TrainState(optimizer=optimizer)
     del optimizer, variables

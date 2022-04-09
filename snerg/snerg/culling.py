@@ -18,7 +18,7 @@
 
 import numpy as np
 
-from snerg.nerf import datasets
+from snerg.model_zoo import datasets
 from snerg.snerg import params
 
 

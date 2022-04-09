@@ -29,9 +29,9 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_hub as tf_hub
 
-from snerg.nerf import datasets
-from snerg.nerf import models
-from snerg.nerf import utils
+from snerg.model_zoo import datasets
+from snerg import model_zoo
+from snerg.model_zoo import utils
 
 FLAGS = flags.FLAGS
 
@@ -55,7 +55,7 @@ def main(unused_argv):
 
     dataset = datasets.get_dataset("test", FLAGS)
     rng, key = random.split(rng)
-    model, init_variables = models.get_model(key, dataset.peek(), FLAGS)
+    model, init_variables = model_zoo.get_model(key, dataset.peek(), FLAGS)
     optimizer = flax.optim.Adam(FLAGS.lr_init).create(init_variables)
     state = utils.TrainState(optimizer=optimizer)
     del optimizer, init_variables

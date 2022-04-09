@@ -12,3 +12,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+
+from snerg.model_zoo import nerf
+
+
+def get_model(key, example_batch, args):
+    """A helper function that wraps around a 'model zoo'."""
+    model_dict = {
+        "nerf": nerf.construct_nerf,
+    }
+    return model_dict[args.model](key, example_batch, args)

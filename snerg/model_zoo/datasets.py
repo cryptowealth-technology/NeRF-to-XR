@@ -27,7 +27,7 @@ if not INTERNAL:
 import jax
 import numpy as np
 from PIL import Image
-from snerg.nerf import utils
+from snerg.model_zoo import utils
 
 
 def get_dataset(split, args):

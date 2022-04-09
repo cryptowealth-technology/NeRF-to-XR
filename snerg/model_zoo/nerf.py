@@ -20,16 +20,8 @@ from flax import linen as nn
 from jax import random
 import jax.numpy as jnp
 
-from snerg.nerf import model_utils
-from snerg.nerf import utils
-
-
-def get_model(key, example_batch, args):
-    """A helper function that wraps around a 'model zoo'."""
-    model_dict = {
-        "nerf": construct_nerf,
-    }
-    return model_dict[args.model](key, example_batch, args)
+from snerg.model_zoo import model_utils
+from snerg.model_zoo import utils
 
 
 class NerfModel(nn.Module):
