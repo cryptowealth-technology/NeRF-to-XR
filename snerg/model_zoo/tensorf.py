@@ -43,7 +43,7 @@ class TensorfModel(nn.Module):
     checkpoint_path: str  # The checkpoint saved from training (using the TensoRF modules).
     is_llff_360_scene: bool
     dataset: str  # the type of data loader used, e.g. "blender", "llff", etc.
-    N_voxel_init: int  # TODO[explain what this is?]
+    N_voxel_init: int  # controls the resolution of matrix and vector used in decomposition
     num_ray_samples: int  # the number of sampling points on each ray
 
     DECOMP_METHODS = {
@@ -67,7 +67,7 @@ class TensorfModel(nn.Module):
         """Uses the config file and other info to give a precise answer."""
         # A: initialize all the variables needed to find the number of samples
         scene_bbox_sizes = {
-            # these values correspond are from the TensoRF.dataLoader package
+            # these values are from the TensoRF.dataLoader package
             "blender": torch.tensor([[-1.5, -1.5, -1.5], [1.5, 1.5, 1.5]]),
             "llff": torch.tensor([[-1.5, -1.67, -1.0], [1.5, 1.67, 1.0]]),
         }

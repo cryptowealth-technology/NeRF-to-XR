@@ -19,12 +19,14 @@ import collections
 import os
 from os import path
 from absl import flags
+from typing import Union
 import flax
 import jax
 import jax.numpy as jnp
 import jax.scipy as jsp
 import numpy as np
 from PIL import Image
+import torch
 import yaml
 from snerg.model_zoo import datasets
 
@@ -34,7 +36,16 @@ INTERNAL = False
 
 @flax.struct.dataclass
 class TrainState:
-    optimizer: flax.optim.Optimizer
+    optimizer: Union[flax.optim.Optimizer, torch.optim.Optimizer]
+
+    def get_current_step(self):
+        if isinstance(self.optimizer, flax.optim.Optimizer):
+            return int(state.optimizer.state.step)
+        else:  # if using a PyTorch optimizer that keeps the step, e.g. Adam
+            state = self.optimizer.state
+            return int(  # TODO[test!!!]
+                state[self.optimizer.param_groups[0]["params"][-1]]["step"]  
+            )
 
 
 @flax.struct.dataclass
@@ -334,16 +345,17 @@ def define_flags():
     flags.DEFINE_string(
         "tensorf_checkpoint",
         "",
-        "If using TensoRF, specify the path to the saved checkpoint weights.",
+        "Specify the path to the TensoRF checkpoint weights. \
+         Should have the prefix 'checkpoint_'.",
     )
     flags.DEFINE_integer(
         "N_voxel_init",
-        2097156,  # 128**3
-        "If using TensoRF...",  # TODO[why is this needed again?]
+        2_097_156,  # 128**3
+        "If using TensoRF...",  # # controls the resolution of matrix and vector used in decomposition
     )
     flags.DEFINE_integer(
         "num_ray_samples",
-        1e6,
+        1_000_000,
         "Number of sample points on each ray. Default is to auto-adjust.",  # TODO[verify, look at TensoRF src code]
     )
 

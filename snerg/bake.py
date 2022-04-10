@@ -29,7 +29,7 @@ import numpy as np
 from scipy import ndimage
 import tensorflow as tf
 
-from snerg.model_zoo import datasets
+from snerg.model_zoo import datasets, tensorf
 from snerg import model_zoo
 from snerg.model_zoo import utils
 
@@ -68,7 +68,11 @@ def main(unused_argv):
     test_dataset = datasets.get_dataset("test", FLAGS)
     rng, key = random.split(rng)
     model, init_variables = model_zoo.get_model(key, test_dataset.peek(), FLAGS)
-    optimizer = flax.optim.Adam(FLAGS.lr_init).create(init_variables)
+    # HOTSPOT: init the state based on the type of model
+    if isinstance(model, tensorf.TensorfModel):
+        optimizer = flax.optim.Adam(FLAGS.lr_init).create(init_variables)
+    else: 
+        optimizer = tensorf.TensorfModel.get_optimizer(model, FLAGS)  # TODO
     state = utils.TrainState(optimizer=optimizer)
     del optimizer, init_variables
 
@@ -99,8 +103,10 @@ def main(unused_argv):
         summary_writer = tensorboard.SummaryWriter(path.join(FLAGS.train_dir, "bake"))
 
     while True:
-        state = checkpoints.restore_checkpoint(FLAGS.train_dir, state)
-        step = int(state.optimizer.state.step)
+        # HOTSPOT: only restore if using flax (if torch, then is already restored at this point)
+        if not FLAGS.tensorf_checkpoint:
+            state = checkpoints.restore_checkpoint(FLAGS.train_dir, state)
+        step = state.get_current_step()
         if step <= last_step:
             continue
 

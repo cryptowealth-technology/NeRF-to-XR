@@ -58,8 +58,9 @@ def render_test(args):
     white_bg = test_dataset.white_bg
     ndc_ray = args.ndc_ray
 
+    # reconstruct the model
     if not os.path.exists(args.ckpt):
-        print("the ckpt path does not exists!!")
+        print("the ckpt path does not exist!!")
         return
 
     ckpt = torch.load(args.ckpt, map_location=device)
@@ -68,6 +69,7 @@ def render_test(args):
     tensorf = eval(args.model_name)(**kwargs)
     tensorf.load(ckpt)
 
+    # render the training imgs
     logfolder = os.path.dirname(args.ckpt)
     if args.render_train:
         os.makedirs(f"{logfolder}/imgs_train_all", exist_ok=True)
@@ -90,6 +92,7 @@ def render_test(args):
             f"======> {args.expname} train all psnr: {np.mean(PSNRs_test)} <========================"
         )
 
+    # render the test imgs
     if args.render_test:
         os.makedirs(f"{logfolder}/{args.expname}/imgs_test_all", exist_ok=True)
         evaluation(
@@ -356,6 +359,7 @@ def reconstruction(args):
             optimizer = torch.optim.Adam(grad_vars, betas=(0.9, 0.99))
 
     tensorf.save(f"{logfolder}/{args.expname}.th")
+    # tensorf.save(f"{logfolder}/checkpoint_{args.n_iters}.th") -- TODO: do we need this instead?
 
     if args.render_train:
         os.makedirs(f"{logfolder}/imgs_train_all", exist_ok=True)

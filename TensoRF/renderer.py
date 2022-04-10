@@ -192,6 +192,8 @@ def evaluation_path(
         # rgb_map = np.concatenate((rgb_map, depth_map), axis=1)
         rgb_maps.append(rgb_map)
         depth_maps.append(depth_map)
+
+    # save the rendered outputs!
         if savePath is not None:
             imageio.imwrite(f"{savePath}/{prtx}{idx:03d}.png", rgb_map)
             rgb_map = np.concatenate((rgb_map, depth_map), axis=1)
@@ -204,6 +206,7 @@ def evaluation_path(
         f"{savePath}/{prtx}depthvideo.mp4", np.stack(depth_maps), fps=30, quality=8
     )
 
+    # compute the eval metrics
     if PSNRs:
         psnr = np.mean(np.asarray(PSNRs))
         if compute_extra_metrics:

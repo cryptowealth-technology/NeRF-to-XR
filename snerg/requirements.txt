@@ -20,10 +20,9 @@ imageio-ffmpeg
 kornia
 lpips
 scikit-image
+plyfile
+pygltflib
 torch
 torchvision  
+tqdm
 
-# NOTE: if you plan to train/export a TensoRF with this 
-# environment, then also uncomment the next 2 lines:
-# tqdm 
-# plyfile
