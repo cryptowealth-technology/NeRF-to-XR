@@ -69,10 +69,10 @@ def main(unused_argv):
     rng, key = random.split(rng)
     model, init_variables = model_zoo.get_model(key, test_dataset.peek(), FLAGS)
     # HOTSPOT: init the state based on the type of model
-    if isinstance(model, tensorf.TensorfModel):
+    if isinstance(model, tensorf.TensorfModel) is False:
         optimizer = flax.optim.Adam(FLAGS.lr_init).create(init_variables)
-    else: 
-        optimizer = tensorf.TensorfModel.get_optimizer(model, FLAGS)  # TODO
+    else:
+        optimizer = model.create_optimizer(model, FLAGS)
     state = utils.TrainState(optimizer=optimizer)
     del optimizer, init_variables
 
@@ -114,6 +114,11 @@ def main(unused_argv):
         # with the hope of alleviating out-of-memory errors on systems with limited
         # CPU RAM.
         gc.collect()
+
+        ### ***HOTSPOT***:
+        # the rest of this code is highly-specific to NeRF-based SNeRG.
+        # TODO: we need to refactor this so it can follow an alt. path,
+        # if the model type is TensoRF
 
         # Extract the MLPs we need for baking a SNeRG.
         (

@@ -358,8 +358,7 @@ def reconstruction(args):
             )
             optimizer = torch.optim.Adam(grad_vars, betas=(0.9, 0.99))
 
-    tensorf.save(f"{logfolder}/{args.expname}.th")
-    # tensorf.save(f"{logfolder}/checkpoint_{args.n_iters}.th") -- TODO: do we need this instead?
+    tensorf.save(f"{logfolder}/checkpoint_{args.n_iters}.th")
 
     if args.render_train:
         os.makedirs(f"{logfolder}/imgs_train_all", exist_ok=True)

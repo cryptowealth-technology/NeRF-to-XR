@@ -4,6 +4,8 @@ dataset: blender
 tensorf_method: "VMSplit"
 tensorf_checkpoint: "TODO"
 N_voxel_init: 2097156 # 128**3
+lr_init: 0.02  # should be the same as whatever is in the
+                 # config .txt file you trained TensoRF with
 
 # These are copied from the normal blender.yaml
 batching: single_image
@@ -14,7 +16,6 @@ use_viewdirs: true
 white_bkgd: true
 batch_size: 2048
 randomized: true
-lr_init: 5.0e-4
 lr_final: 5.0e-6
 lr_delay_steps: 2500
 lr_delay_mult: 0.1

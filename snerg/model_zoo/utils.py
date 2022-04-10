@@ -44,7 +44,7 @@ class TrainState:
         else:  # if using a PyTorch optimizer that keeps the step, e.g. Adam
             state = self.optimizer.state
             return int(  # TODO[test!!!]
-                state[self.optimizer.param_groups[0]["params"][-1]]["step"]  
+                state[self.optimizer.param_groups[0]["params"][-1]]["step"]
             )
 
 
@@ -357,6 +357,16 @@ def define_flags():
         "num_ray_samples",
         1_000_000,
         "Number of sample points on each ray. Default is to auto-adjust.",  # TODO[verify, look at TensoRF src code]
+    )
+    flags.DEFINE_integer(
+        "lr_upsample_reset",
+        1,
+        "Determines whether to reset learning rate to inital after upsampling",
+    )
+    flags.DEFINE_float(
+        "lr_basis",
+        1e-3,
+        "Another hyperparameter for the learning rate",  # TODO[better-explanation]
     )
 
 

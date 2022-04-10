@@ -193,7 +193,7 @@ def evaluation_path(
         rgb_maps.append(rgb_map)
         depth_maps.append(depth_map)
 
-    # save the rendered outputs!
+        # save the rendered outputs!
         if savePath is not None:
             imageio.imwrite(f"{savePath}/{prtx}{idx:03d}.png", rgb_map)
             rgb_map = np.concatenate((rgb_map, depth_map), axis=1)

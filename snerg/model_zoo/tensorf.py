@@ -43,8 +43,11 @@ class TensorfModel(nn.Module):
     checkpoint_path: str  # The checkpoint saved from training (using the TensoRF modules).
     is_llff_360_scene: bool
     dataset: str  # the type of data loader used, e.g. "blender", "llff", etc.
-    N_voxel_init: int  # controls the resolution of matrix and vector used in decomposition
-    num_ray_samples: int  # the number of sampling points on each ray
+    N_voxel_init: int  # controls the resolution of matrix and vector used in decomposition.
+    num_ray_samples: int  # the number of sampling points on each ray.
+    lr_init: float  # The initial learning rate.
+    lr_basis: float  # TODO[explain].
+    lr_upsample_reset: int  # Bit that decides if we reset learning rate after upsampling, to inital value.
 
     DECOMP_METHODS = {
         "CP": tensoRF.TensorCP,
@@ -105,6 +108,11 @@ class TensorfModel(nn.Module):
         )
         # we're not called directly during baking - return as is
         return rgb_map, depth_map  # rgb, sigma, alpha, weight, bg_weight
+
+    def create_optimizer(self) -> torch.optim.Adam:
+        """Instaniates an Adam optimizer, in its initial state."""
+        grad_vars = self.tensorf.get_optparam_groups(self.lr_init, self.lr_basis)
+        return torch.optim.Adam(grad_vars, betas=(0.9, 0.99))
 
 
 def construct_tensorf(key, example_batch, args):
@@ -175,6 +183,9 @@ def construct_tensorf(key, example_batch, args):
         dataset_type=args.dataset,
         N_voxel_init=args.N_voxel_init,
         num_ray_samples=args.num_ray_samples,
+        lr_upsample_reset=args.lr_upsample_reset,
+        lr_basis=args.lr_basis,
+        lr_init=args.lr_init,
     )
     rays = example_batch["rays"]
     key1, key2, key3 = random.split(key, num=3)
